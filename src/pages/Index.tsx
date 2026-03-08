@@ -3,6 +3,7 @@ import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
+import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
 import { MapPin, Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -102,6 +103,12 @@ export default function Index() {
             {loading ? '...' : hijriDate}
           </p>
         </div>
+      </div>
+
+      {/* Hijri Calendar & Events */}
+      <div className="px-5 mb-5">
+        <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('hijriCalendar')}</h2>
+        <HijriCalendar />
       </div>
 
       {/* Today's Prayers Mini */}

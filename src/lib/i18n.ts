@@ -74,6 +74,23 @@ const arabicStrings: Record<string, string> = {
   calculateZakat: 'حساب الزكاة',
   yourZakat: 'زكاتك (٢.٥٪)',
   ayahs: 'آيات',
+  istighfar: 'الاستغفار',
+  hijriCalendar: 'التقويم الهجري',
+  ramadanCountdown: 'العد التنازلي لرمضان',
+  daysRemaining: 'يوم متبقي',
+  ramadanMubarak: 'رمضان مبارك! 🌙',
+  upcomingEvents: 'المناسبات القادمة',
+  newYear: 'رأس السنة الهجرية',
+  ashura: 'يوم عاشوراء',
+  mawlidNabi: 'المولد النبوي',
+  israMiraj: 'الإسراء والمعراج',
+  shaabanMid: 'ليلة النصف من شعبان',
+  ramadanStart: 'بداية رمضان',
+  lailatAlQadr: 'ليلة القدر',
+  eidFitr: 'عيد الفطر',
+  hajjStart: 'بداية الحج',
+  dayArafah: 'يوم عرفة',
+  eidAdha: 'عيد الأضحى',
 };
 
 // RTL languages
