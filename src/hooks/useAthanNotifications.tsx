@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { PrayerTime } from './usePrayerTimes';
-import { schedulePrayerNotifications } from '@/lib/prayerNotifications';
+import { schedulePrayerNotifications, setAthanAlertCallback, AthanAlertCallback } from '@/lib/prayerNotifications';
 
 /**
  * Request notification permission
@@ -14,10 +14,24 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 /**
- * Hook: monitors prayer times and sends notifications via Service Worker
+ * Hook: monitors prayer times and sends notifications + full-screen alerts
  */
-export function useAthanNotifications(prayers: PrayerTime[], enabled: boolean = true) {
+export function useAthanNotifications(
+  prayers: PrayerTime[],
+  enabled: boolean = true,
+  onAlert?: AthanAlertCallback
+) {
   const scheduledRef = useRef(false);
+
+  // Register the alert callback
+  useEffect(() => {
+    if (enabled && onAlert) {
+      setAthanAlertCallback(onAlert);
+    }
+    return () => {
+      setAthanAlertCallback(null);
+    };
+  }, [enabled, onAlert]);
 
   useEffect(() => {
     if (!enabled || prayers.length === 0) return;

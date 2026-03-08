@@ -9,14 +9,17 @@ const PRAYER_NAMES: Record<string, string> = {
   isha: '🌙 العشاء',
 };
 
+export type AthanAlertCallback = (prayerKey: string, prayerTime: string) => void;
+
+let onAthanAlert: AthanAlertCallback | null = null;
+
+export function setAthanAlertCallback(cb: AthanAlertCallback | null) {
+  onAthanAlert = cb;
+}
+
 export async function schedulePrayerNotifications(
   prayers: { key: string; time24: string; time: string }[]
 ) {
-  if (!('serviceWorker' in navigator)) return;
-  if (Notification.permission !== 'granted') return;
-
-  const reg = await navigator.serviceWorker.ready;
-
   // Cancel any previously scheduled notifications
   const existingTimers = (window as any).__prayerTimers as number[] | undefined;
   if (existingTimers) {
@@ -41,16 +44,25 @@ export async function schedulePrayerNotifications(
       // Play athan audio
       playAthan(prayer.key);
 
-      // Show notification
-      reg.showNotification('حان وقت الصلاة 🕌', {
-        body: `${PRAYER_NAMES[prayer.key] || prayer.key} - ${prayer.time}`,
-        icon: '/pwa-icon-192.png',
-        badge: '/pwa-icon-192.png',
-        tag: `prayer-${prayer.key}`,
-        requireInteraction: true,
-        silent: true, // We play our own audio
-        data: { url: '/' },
-      } as NotificationOptions);
+      // Show full-screen alert
+      if (onAthanAlert) {
+        onAthanAlert(prayer.key, prayer.time);
+      }
+
+      // Also show browser notification (for when app is in background)
+      if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification('حان وقت الصلاة 🕌', {
+            body: `${PRAYER_NAMES[prayer.key] || prayer.key} - ${prayer.time}`,
+            icon: '/pwa-icon-192.png',
+            badge: '/pwa-icon-192.png',
+            tag: `prayer-${prayer.key}`,
+            requireInteraction: true,
+            silent: true,
+            data: { url: '/' },
+          } as NotificationOptions);
+        });
+      }
     }, diff) as unknown as number;
 
     timers.push(timer);
@@ -59,14 +71,18 @@ export async function schedulePrayerNotifications(
     const reminderDiff = diff - 15 * 60 * 1000;
     if (reminderDiff > 0) {
       const reminderTimer = window.setTimeout(() => {
-        reg.showNotification('تذكير بالصلاة 🔔', {
-          body: `${PRAYER_NAMES[prayer.key] || prayer.key} بعد 15 دقيقة`,
-          icon: '/pwa-icon-192.png',
-          badge: '/pwa-icon-192.png',
-          tag: `prayer-reminder-${prayer.key}`,
-          silent: false,
-          data: { url: '/' },
-        } as NotificationOptions);
+        if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification('تذكير بالصلاة 🔔', {
+              body: `${PRAYER_NAMES[prayer.key] || prayer.key} بعد 15 دقيقة`,
+              icon: '/pwa-icon-192.png',
+              badge: '/pwa-icon-192.png',
+              tag: `prayer-reminder-${prayer.key}`,
+              silent: false,
+              data: { url: '/' },
+            } as NotificationOptions);
+          });
+        }
       }, reminderDiff) as unknown as number;
 
       timers.push(reminderTimer);

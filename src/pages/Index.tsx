@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
 import { useAutoTheme } from '@/hooks/useAutoTheme';
+import AthanAlert from '@/components/AthanAlert';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
@@ -39,6 +40,13 @@ export default function Index() {
     return localStorage.getItem('athan-notifications') === 'true';
   });
 
+  // Full-screen athan alert state
+  const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
+
+  const handleAthanAlert = useCallback((prayerKey: string, prayerTime: string) => {
+    setAlertPrayer({ key: prayerKey, time: prayerTime });
+  }, []);
+
   const [prayersDone, setPrayersDone] = useState(0);
   const [tasbeehDone, setTasbeehDone] = useState(0);
 
@@ -62,7 +70,7 @@ export default function Index() {
     setProgress(Math.max(0, Math.min(1, 1 - totalSecs / maxSecs)));
   }, [remaining, nextPrayer]);
 
-  useAthanNotifications(prayers, notificationsEnabled);
+  useAthanNotifications(prayers, notificationsEnabled, handleAthanAlert);
   useAutoTheme(prayers);
 
   const toggleNotifications = async () => {
@@ -91,7 +99,14 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Hero Header */}
+      {/* Full-screen Athan Alert */}
+      {alertPrayer && (
+        <AthanAlert
+          prayerKey={alertPrayer.key}
+          prayerTime={alertPrayer.time}
+          onDismiss={() => setAlertPrayer(null)}
+        />
+      )}
       <div className="relative overflow-hidden">
         <img
           src={meccaImage}
