@@ -393,8 +393,8 @@ export default function Stories() {
                             </div>
                           </div>
                         </div>
-                        <h3 className="font-bold text-foreground text-right mb-2">{story.title}</h3>
-                        <p className="text-xs text-muted-foreground text-right leading-relaxed line-clamp-3 mb-3">
+                        <h3 className="font-bold text-foreground text-right mb-2 break-words">{story.title}</h3>
+                        <p className="text-xs text-muted-foreground text-right leading-relaxed line-clamp-3 mb-3 break-words">
                           {story.content}
                         </p>
                         <div className="flex items-center justify-between border-t border-border pt-3">
