@@ -112,7 +112,8 @@ function AdsManager() {
   const addAd = async () => {
     if (!newAd.name) return toast.error('أدخل اسم الإعلان');
     if (newAd.slot_type === 'image' && !newAd.image_url) return toast.error('أدخل رابط الصورة');
-    if (newAd.slot_type !== 'image' && !newAd.ad_code) return toast.error('أدخل كود الإعلان');
+    if (newAd.slot_type === 'popunder' && !newAd.ad_code) return toast.error('أدخل كود PopUnder');
+    if (newAd.slot_type !== 'image' && newAd.slot_type !== 'popunder' && !newAd.ad_code) return toast.error('أدخل كود الإعلان');
 
     const payload: any = {
       name: newAd.name,
