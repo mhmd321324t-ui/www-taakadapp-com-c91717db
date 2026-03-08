@@ -297,7 +297,7 @@ export default function Index() {
                 <div className="h-14 w-14 rounded-2xl bg-card border border-border flex items-center justify-center shadow-sm">
                   <item.icon className={cn('h-6 w-6', item.color)} />
                 </div>
-                <span className="text-[10px] font-medium text-foreground">{t(item.labelKey)}</span>
+                <span className="text-[10px] font-medium text-foreground">{(item as any).label || t((item as any).labelKey)}</span>
               </Link>
             </motion.div>
           ))}
