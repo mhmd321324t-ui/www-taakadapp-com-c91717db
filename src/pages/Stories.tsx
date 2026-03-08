@@ -268,7 +268,7 @@ export default function Stories() {
   const getCategoryInfo = (key: string) => CATEGORIES.find(c => c.key === key);
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic px-5 pb-6 pt-12">
         <div className="flex items-center justify-between">
