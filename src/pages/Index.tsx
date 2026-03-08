@@ -22,6 +22,7 @@ const quickAccessItems = [
 
 export default function Index() {
   const { t, isRTL } = useLocale();
+  const { user } = useAuth();
   const location = useGeoLocation();
   const { prayers, hijriDate, hijriDay, hijriMonthNumber, hijriYear, loading } = usePrayerTimes(
     location.latitude,
@@ -33,6 +34,23 @@ export default function Index() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
     return localStorage.getItem('athan-notifications') === 'true';
   });
+
+  // Load real daily goals
+  const [prayersDone, setPrayersDone] = useState(0);
+  const [tasbeehDone, setTasbeehDone] = useState(0);
+
+  useEffect(() => {
+    const todayKey = new Date().toISOString().split('T')[0];
+    // Prayer tracker
+    const prayerData = localStorage.getItem('prayer-tracker');
+    if (prayerData) {
+      const parsed = JSON.parse(prayerData);
+      setPrayersDone(parsed[todayKey]?.length || 0);
+    }
+    // Tasbeeh - count completed dhikr types
+    const tasbeehTotal = parseInt(localStorage.getItem('tasbeeh-total') || '0');
+    setTasbeehDone(Math.min(tasbeehTotal > 0 ? 1 : 0, 4));
+  }, []);
 
   // Countdown circle progress
   const [progress, setProgress] = useState(0);
