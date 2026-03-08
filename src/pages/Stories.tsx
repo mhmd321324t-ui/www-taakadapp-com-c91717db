@@ -155,8 +155,8 @@ export default function Stories() {
       toast.error('العنوان يجب أن يكون أقل من 100 حرف');
       return;
     }
-    if (newContent.trim().length > 5000) {
-      toast.error('القصة يجب أن تكون أقل من 5000 حرف');
+    if (newContent.trim().length > maxChars) {
+      toast.error(`القصة يجب أن تكون أقل من ${maxChars} حرف`);
       return;
     }
     setSubmitting(true);
