@@ -273,18 +273,18 @@ export default function Qibla() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-sm mb-4 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-3 flex items-center gap-2 justify-between"
+              className="mb-4 flex w-full max-w-sm flex-col gap-2 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <button
                 onClick={calibrate}
-                className="text-xs bg-[hsl(var(--islamic-gold))]/20 text-[hsl(var(--islamic-gold))] px-3 py-1.5 rounded-full font-medium flex items-center gap-1"
+                className="flex items-center justify-center gap-1 self-start rounded-full bg-[hsl(var(--islamic-gold))]/20 px-3 py-1.5 text-xs font-medium text-[hsl(var(--islamic-gold))] sm:self-auto"
               >
                 <RotateCcw className="h-3 w-3" />
                 معايرة
               </button>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-muted-foreground">دقة البوصلة منخفضة - حرّك الهاتف بشكل ∞</p>
-                <AlertTriangle className="h-4 w-4 text-[hsl(var(--islamic-gold))]" />
+              <div className="flex min-w-0 items-center gap-2">
+                <p className="min-w-0 text-xs text-muted-foreground break-words">دقة البوصلة منخفضة - حرّك الهاتف بشكل ∞</p>
+                <AlertTriangle className="h-4 w-4 shrink-0 text-[hsl(var(--islamic-gold))]" />
               </div>
             </motion.div>
           )}
