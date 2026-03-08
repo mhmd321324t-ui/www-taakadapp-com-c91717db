@@ -261,13 +261,13 @@ export default function Index() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 + i * 0.04 }}
                 className={cn(
-                  'rounded-2xl border p-3 text-center transition-all',
+                  'rounded-2xl border p-3 text-center transition-all min-w-0',
                   isNext
                     ? 'border-primary/50 bg-primary/10 shadow-sm'
                     : 'border-border bg-card'
                 )}
               >
-                <p className={cn('text-[10px] mb-0.5', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
+                <p className={cn('text-[11px] mb-0.5 truncate', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
                   {t(prayer.key)}
                 </p>
                 <p className={cn('text-base font-semibold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
