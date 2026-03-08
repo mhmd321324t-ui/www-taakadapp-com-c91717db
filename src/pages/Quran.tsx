@@ -246,8 +246,8 @@ export default function Quran() {
   );
 }
 
-import { forwardRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+
 
 const SurahRow = forwardRef<HTMLDivElement, {
   surah: Surah;
