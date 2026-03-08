@@ -104,7 +104,8 @@ export default function More() {
 
       {/* Athan Sound Selector */}
       <div className="px-5 mt-5">
-        <AthanSection />
+        <h2 className="text-sm font-bold text-foreground mb-3">🔊 صوت الأذان</h2>
+        <AthanSelector />
       </div>
     </div>
   );
