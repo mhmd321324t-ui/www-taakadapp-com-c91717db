@@ -61,6 +61,7 @@ export default function Stories() {
   const [newAuthorName, setNewAuthorName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [maxChars, setMaxChars] = useState(5000);
 
   // Comment form
   const [commentText, setCommentText] = useState('');
