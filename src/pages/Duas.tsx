@@ -170,10 +170,10 @@ export default function Duas() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: j * 0.05 }}
-      className="rounded-xl bg-card border border-border p-4"
+      className="rounded-2xl bg-card border border-border/50 p-5 shadow-elevated"
     >
       <div className="flex items-center justify-between mb-2">
-        <button onClick={() => toggleFavorite(dua.duaId)} className="p-1">
+        <button onClick={() => toggleFavorite(dua.duaId)} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
           <Heart className={cn("h-4 w-4", favorites.includes(dua.duaId) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
         </button>
         <span className="text-[10px] text-muted-foreground">{dua.catLabel} › {dua.subLabel}</span>
