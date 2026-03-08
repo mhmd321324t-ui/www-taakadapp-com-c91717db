@@ -100,6 +100,11 @@ export default function More() {
           </div>
         </div>
       </div>
+
+      {/* Athan Sound Selector */}
+      <div className="px-5 mt-5">
+        <AthanSection />
+      </div>
     </div>
   );
 }
