@@ -104,6 +104,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
           hijriDay: hijri.day,
           hijriMonthAr: hijri.month.ar,
           hijriMonthEn: hijri.month.en,
+          hijriMonthNumber: hijri.month.number,
           hijriYear: hijri.year,
           hijriMonth: hijri.month.ar,
           loading: false,
