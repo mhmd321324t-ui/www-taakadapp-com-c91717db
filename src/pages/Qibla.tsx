@@ -205,25 +205,25 @@ export default function Qibla() {
                 </div>
                 <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
                   <div className="flex items-start gap-2 justify-end">
-                    <p className="text-right">
+                    <p className="min-w-0 break-words text-right">
                       <span className="text-primary font-bold">١.</span> ضع الهاتف بشكل <span className="text-foreground font-medium">أفقي مسطّح</span> على راحة يدك
                     </p>
                     <span className="text-lg">📱</span>
                   </div>
                   <div className="flex items-start gap-2 justify-end">
-                    <p className="text-right">
+                    <p className="min-w-0 break-words text-right">
                       <span className="text-primary font-bold">٢.</span> ابتعد عن <span className="text-foreground font-medium">المعادن والأجهزة الإلكترونية</span> (سماعات، لابتوب)
                     </p>
                     <span className="text-lg">🧲</span>
                   </div>
                   <div className="flex items-start gap-2 justify-end">
-                    <p className="text-right">
+                    <p className="min-w-0 break-words text-right">
                       <span className="text-primary font-bold">٣.</span> لمعايرة البوصلة: حرّك الهاتف بشكل <span className="text-foreground font-medium">رقم 8</span> عدة مرات
                     </p>
                     <span className="text-lg">♾️</span>
                   </div>
                   <div className="flex items-start gap-2 justify-end">
-                    <p className="text-right">
+                    <p className="min-w-0 break-words text-right">
                       <span className="text-primary font-bold">٤.</span> أدِر جسمك حتى تظهر <span className="text-foreground font-medium">🕋 في الأعلى</span> ويتحول اللون إلى <span className="text-primary font-medium">أخضر</span>
                     </p>
                     <span className="text-lg">🧭</span>
