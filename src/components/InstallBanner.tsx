@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Download } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { X, Download, Share } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -7,22 +7,29 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+}
+
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as any).standalone === true;
+}
+
 export default function InstallBanner() {
   const [show, setShow] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const ios = useMemo(() => isIOS(), []);
 
   useEffect(() => {
-    // Don't show if already installed (standalone mode)
-    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    if (isInStandaloneMode()) return;
 
-    // Listen for install prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener('beforeinstallprompt', handler);
 
-    // Show after 5 seconds
     const showTimer = setTimeout(() => setShow(true), 5000);
 
     return () => {
@@ -43,8 +50,7 @@ export default function InstallBanner() {
 
   const dismiss = () => setShow(false);
 
-  // Don't render if installed
-  if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+  if (typeof window !== 'undefined' && isInStandaloneMode()) {
     return null;
   }
 
@@ -52,6 +58,7 @@ export default function InstallBanner() {
     <AnimatePresence>
       {show && (
         <motion.div
+          key="install-banner"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
@@ -70,19 +77,17 @@ export default function InstallBanner() {
             <img src="/pwa-icon-192.png" alt="تأكد" className="h-12 w-12 rounded-xl shadow" />
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-bold text-foreground">ثبّت تطبيق تأكد 📲</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">وصول سريع بدون متصفح</p>
+              {ios ? (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  اضغط <Share className="inline h-3.5 w-3.5 mx-0.5 -mt-0.5" /> ثم "إضافة للشاشة الرئيسية"
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">وصول سريع بدون متصفح</p>
+              )}
             </div>
-            {deferredPrompt ? (
+            {!ios && (
               <button
-                onClick={handleInstall}
-                className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow active:scale-95 transition-transform flex items-center gap-1.5"
-              >
-                <Download className="h-4 w-4" />
-                تثبيت
-              </button>
-            ) : (
-              <button
-                onClick={dismiss}
+                onClick={deferredPrompt ? handleInstall : dismiss}
                 className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow active:scale-95 transition-transform flex items-center gap-1.5"
               >
                 <Download className="h-4 w-4" />
