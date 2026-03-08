@@ -107,7 +107,7 @@ export default function PrayerTracker() {
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-2">
         {/* Login prompt */}
         {!user && (
           <Link

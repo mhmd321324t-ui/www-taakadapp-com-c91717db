@@ -63,7 +63,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pb-24" dir="rtl">
       <div className="gradient-islamic islamic-pattern px-5 pb-10 pt-16 text-center relative">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl font-bold font-arabic text-primary-foreground mb-2">{t('appName')}</h1>
