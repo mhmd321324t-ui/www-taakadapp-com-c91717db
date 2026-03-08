@@ -63,6 +63,10 @@ export default {
           "teal-light": "hsl(var(--islamic-teal-light))",
           purple: "hsl(var(--islamic-purple))",
           "purple-light": "hsl(var(--islamic-purple-light))",
+          emerald: "hsl(var(--islamic-emerald))",
+          "emerald-glow": "hsl(var(--islamic-emerald-glow))",
+          rose: "hsl(var(--islamic-rose))",
+          copper: "hsl(var(--islamic-copper))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
