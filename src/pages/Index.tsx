@@ -5,16 +5,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
 import { useAutoTheme } from '@/hooks/useAutoTheme';
-import AthanAlert from '@/components/AthanAlert';
+import OccasionAthanAlert from '@/components/OccasionAthanAlert';
+import OccasionBanner from '@/components/OccasionBanner';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import meccaImage from '@/assets/mecca.jpg';
+import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 
 const quickAccessItems = [
   { icon: Heart, labelKey: 'tasbeeh', path: '/tasbeeh', gradient: 'from-primary/20 to-islamic-teal/10' },
