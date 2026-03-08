@@ -43,7 +43,7 @@ export default function Index() {
     } else {
       setNotificationsEnabled(false);
       localStorage.setItem('athan-notifications', 'false');
-      toast.success('تم إيقاف إشعارات الأذان');
+      toast.success(t('notificationsDisabled'));
     }
   };
 

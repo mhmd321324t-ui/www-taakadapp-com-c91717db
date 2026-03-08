@@ -72,7 +72,7 @@ export default function SurahView() {
         .from('quran_bookmarks')
         .insert({ user_id: user.id, surah_number: surahNum });
       setBookmarked(true);
-      toast.success('تمت إضافة السورة إلى المفضلات');
+      toast.success(t('surahAddedToFav'));
     }
   };
 
