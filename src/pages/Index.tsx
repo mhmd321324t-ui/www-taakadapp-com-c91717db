@@ -141,18 +141,18 @@ export default function Index() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
-              <div className="flex gap-3 mt-1">
+              <div className="flex flex-wrap gap-2 mt-1">
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="text-muted-foreground">{prayersDone}/5 الصلاة</span>
+                  <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">{prayersDone}/5 الصلاة</span>
                 </span>
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-islamic-teal" />
-                  <span className="text-muted-foreground">0/1 القرآن</span>
+                  <span className="h-2 w-2 rounded-full bg-islamic-teal shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">0/1 القرآن</span>
                 </span>
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-islamic-gold" />
-                  <span className="text-muted-foreground">{tasbeehDone}/4 ذكر</span>
+                  <span className="h-2 w-2 rounded-full bg-islamic-gold shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">{tasbeehDone}/4 ذكر</span>
                 </span>
               </div>
             </div>
