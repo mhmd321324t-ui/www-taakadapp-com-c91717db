@@ -1,14 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
-import { X, Download, Share } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-function isIOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 }
 
 function isInStandaloneMode() {
@@ -19,7 +15,6 @@ function isInStandaloneMode() {
 export default function InstallBanner() {
   const [show, setShow] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const ios = useMemo(() => isIOS(), []);
 
   useEffect(() => {
     if (isInStandaloneMode()) return;
@@ -27,14 +22,13 @@ export default function InstallBanner() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+      // Show banner once prompt is ready
+      setShow(true);
     };
     window.addEventListener('beforeinstallprompt', handler);
 
-    const showTimer = setTimeout(() => setShow(true), 5000);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
-      clearTimeout(showTimer);
     };
   }, []);
 
@@ -56,7 +50,7 @@ export default function InstallBanner() {
 
   return (
     <AnimatePresence>
-      {show && (
+      {show && deferredPrompt && (
         <motion.div
           key="install-banner"
           initial={{ y: 100, opacity: 0 }}
@@ -77,23 +71,15 @@ export default function InstallBanner() {
             <img src="/pwa-icon-192.png" alt="تأكد" className="h-12 w-12 rounded-xl shadow" />
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-bold text-foreground">ثبّت تطبيق تأكد 📲</h3>
-              {ios ? (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  اضغط <Share className="inline h-3.5 w-3.5 mx-0.5 -mt-0.5" /> ثم "إضافة للشاشة الرئيسية"
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-0.5">وصول سريع بدون متصفح</p>
-              )}
+              <p className="text-xs text-muted-foreground mt-0.5">وصول سريع بدون متصفح</p>
             </div>
-            {!ios && (
-              <button
-                onClick={deferredPrompt ? handleInstall : dismiss}
-                className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow active:scale-95 transition-transform flex items-center gap-1.5"
-              >
-                <Download className="h-4 w-4" />
-                تثبيت
-              </button>
-            )}
+            <button
+              onClick={handleInstall}
+              className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow active:scale-95 transition-transform flex items-center gap-1.5"
+            >
+              <Download className="h-4 w-4" />
+              تثبيت
+            </button>
           </div>
         </motion.div>
       )}
