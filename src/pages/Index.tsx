@@ -42,6 +42,9 @@ export default function Index() {
     return localStorage.getItem('athan-notifications') === 'true';
   });
 
+  // Current Islamic occasion
+  const currentOccasion = getCurrentOccasion(hijriMonthNumber, hijriDay);
+
   // Full-screen athan alert state
   const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
 
