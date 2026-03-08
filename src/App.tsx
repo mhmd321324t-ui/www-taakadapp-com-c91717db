@@ -45,6 +45,8 @@ const App = () => (
                 <Route path="/zakat" element={<ZakatCalculator />} />
                 <Route path="/stories" element={<Stories />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="*" element={<NotFound />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
