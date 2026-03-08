@@ -264,7 +264,7 @@ export default function Duas() {
                 placeholder="ابحث عن دعاء..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9 rounded-xl bg-card border-border"
+                className="pl-9 rounded-2xl bg-card border-border/50"
                 autoFocus
               />
             </div>
