@@ -1,6 +1,5 @@
 // Service Worker notification helper for prayer times
-// This file is injected into the SW via vite-plugin-pwa's injectManifest or
-// used alongside the generated SW to schedule notifications.
+import { playAthan } from './athanAudio';
 
 const PRAYER_NAMES: Record<string, string> = {
   fajr: '🌅 الفجر',
@@ -10,12 +9,6 @@ const PRAYER_NAMES: Record<string, string> = {
   isha: '🌙 العشاء',
 };
 
-/**
- * Register the SW and schedule prayer notifications using setTimeout
- * so they fire even when the app tab is inactive (SW stays alive briefly).
- * For true background push we'd need a push server, but this approach
- * leverages the periodic SW wake + Notification API which works well for PWAs.
- */
 export async function schedulePrayerNotifications(
   prayers: { key: string; time24: string; time: string }[]
 ) {
@@ -42,22 +35,27 @@ export async function schedulePrayerNotifications(
     prayerDate.setHours(h, m, 0, 0);
 
     const diff = prayerDate.getTime() - currentMs;
-    if (diff <= 0) continue; // Already passed
+    if (diff <= 0) continue;
 
     const timer = window.setTimeout(() => {
+      // Play athan audio
+      playAthan(prayer.key);
+
+      // Show notification
       reg.showNotification('حان وقت الصلاة 🕌', {
         body: `${PRAYER_NAMES[prayer.key] || prayer.key} - ${prayer.time}`,
         icon: '/pwa-icon-192.png',
         badge: '/pwa-icon-192.png',
         tag: `prayer-${prayer.key}`,
         requireInteraction: true,
+        silent: true, // We play our own audio
         data: { url: '/' },
       } as NotificationOptions);
     }, diff) as unknown as number;
 
     timers.push(timer);
 
-    // Also schedule a 15-min reminder before prayer
+    // 15-min reminder (no athan, just notification)
     const reminderDiff = diff - 15 * 60 * 1000;
     if (reminderDiff > 0) {
       const reminderTimer = window.setTimeout(() => {
