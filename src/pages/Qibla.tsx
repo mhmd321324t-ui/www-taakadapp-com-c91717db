@@ -142,6 +142,7 @@ export default function Qibla() {
   const { heading: compass, accuracy, hasCompass, permissionNeeded, requestPermission } = useSmoothedCompass();
   const [showInstructions, setShowInstructions] = useState(true);
   const [calibrating, setCalibrating] = useState(false);
+  const [viewMode, setViewMode] = useState<'compass' | 'map'>('compass');
 
   const qiblaAngle = calculateQiblaDirection(location.latitude, location.longitude);
   const distance = calculateDistance(location.latitude, location.longitude);
