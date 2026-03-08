@@ -210,7 +210,7 @@ export default function ZakatCalculator() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
-      <div className="gradient-islamic px-5 pb-8 pt-12 relative">
+      <div className="gradient-islamic relative px-5 pb-8 pt-12">
         <h1 className="text-2xl font-bold text-primary-foreground">{t('zakatCalculator')}</h1>
         <p className="text-primary-foreground/70 text-sm mt-1">حاسبة ذكية متعددة العملات</p>
 
