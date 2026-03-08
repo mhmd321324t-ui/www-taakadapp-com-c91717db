@@ -120,7 +120,7 @@ export default function Index() {
             <p className="text-white font-semibold text-sm tracking-wide">
               {location.loading ? '...' : location.city}
             </p>
-            <p className="text-white/60 text-[11px] font-arabic mt-0.5">
+            <p className="text-white/60 text-xs font-arabic mt-0.5">
               {loading ? '...' : hijriDate}
             </p>
           </div>
@@ -145,15 +145,15 @@ export default function Index() {
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
               <div className="flex flex-wrap gap-3 mt-1.5">
-                <span className="flex items-center gap-1.5 text-[10px]">
+                <span className="flex items-center gap-1.5 text-xs">
                   <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                   <span className="text-muted-foreground">{prayersDone}/5 الصلاة</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-[10px]">
+                <span className="flex items-center gap-1.5 text-xs">
                   <span className="h-2 w-2 rounded-full bg-islamic-teal shrink-0" />
                   <span className="text-muted-foreground">0/1 القرآن</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-[10px]">
+                <span className="flex items-center gap-1.5 text-xs">
                   <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
                   <span className="text-muted-foreground">{tasbeehDone}/4 ذكر</span>
                 </span>
@@ -236,12 +236,12 @@ export default function Index() {
         >
           <div className="absolute inset-0 islamic-pattern opacity-20" />
           <div className="text-white text-sm relative z-10">
-            <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">إفطار</span>
+            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
             <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
           </div>
           <span className="text-3xl relative z-10">🌙</span>
           <div className="text-white text-sm text-left relative z-10">
-            <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">الفجر</span>
+            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
             <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
           </div>
         </motion.div>
@@ -272,7 +272,7 @@ export default function Index() {
                     : 'border-border/50 bg-card'
                 )}
               >
-                <p className={cn('text-[11px] mb-0.5 truncate', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
+                <p className={cn('text-xs mb-0.5 truncate', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
                   {t(prayer.key)}
                 </p>
                 <p className={cn('text-base font-semibold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
@@ -307,7 +307,7 @@ export default function Index() {
                 )}>
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-[11px] font-medium text-foreground text-center w-full break-words leading-tight">
+                <span className="text-xs font-medium text-foreground text-center w-full break-words leading-tight">
                   {(item as any).label || t((item as any).labelKey)}
                 </span>
               </Link>

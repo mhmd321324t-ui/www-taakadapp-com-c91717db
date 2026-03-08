@@ -152,9 +152,12 @@ export default function QuranPlayer() {
     };
 
     const onError = () => {
-      setLoading(false);
-      setIsPlaying(false);
-      toast.error('تعذر تشغيل الصوت لهذا القارئ/السورة');
+      // Only show error if we actually have a src set (avoid spurious errors on reset)
+      if (audio.src && audio.src !== window.location.href) {
+        setLoading(false);
+        setIsPlaying(false);
+        toast.error('تعذر تشغيل الصوت — جرّب قارئاً آخر');
+      }
     };
 
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -234,6 +237,10 @@ export default function QuranPlayer() {
 
     // If a surah is selected, reload it with the new reciter.
     if (selectedSurahRef.current) {
+      // Unlock audio context immediately within user gesture by calling play() on current src
+      if (wasPlaying) {
+        try { await audio.play(); } catch { /* expected, just unlocking */ }
+      }
       await startSurah(selectedSurahRef.current, newReciterId, { autoplay: wasPlaying });
     }
   };
@@ -359,7 +366,7 @@ export default function QuranPlayer() {
               </div>
 
               <div className="p-4 border-b border-border/50">
-                <label className="text-[10px] text-muted-foreground mb-1.5 block text-right">
+                <label className="text-xs text-muted-foreground mb-1.5 block text-right">
                   القارئ ({RECITERS.length} قارئ)
                 </label>
                 <select
@@ -422,10 +429,10 @@ export default function QuranPlayer() {
                                   : 'hover:bg-muted'
                               )}
                             >
-                              <span className="text-[10px] text-muted-foreground">{s.numberOfAyahs} آية</span>
+                              <span className="text-xs text-muted-foreground">{s.numberOfAyahs} آية</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-foreground">{s.name}</span>
-                                <span className="text-[10px] text-muted-foreground w-6 text-center">{s.number}</span>
+                                <span className="text-xs text-muted-foreground w-6 text-center">{s.number}</span>
                               </div>
                             </button>
                           ))}
@@ -444,7 +451,7 @@ export default function QuranPlayer() {
                       style={{ width: `${progress}%`, marginRight: 'auto', marginLeft: 0 }}
                     />
                   </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-4 tabular-nums" dir="ltr">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-4 tabular-nums" dir="ltr">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
@@ -490,7 +497,7 @@ export default function QuranPlayer() {
                     </div>
                   </div>
 
-                  <p className="text-center text-[10px] text-muted-foreground mt-3">
+                  <p className="text-center text-xs text-muted-foreground mt-3">
                     {repeatMode === 'one' && '🔂 تكرار السورة الحالية'}
                     {repeatMode === 'all' && '🔁 تشغيل جميع السور تلقائياً'}
                     {repeatMode === 'none' && '➡️ الانتقال للسورة التالية تلقائياً'}
