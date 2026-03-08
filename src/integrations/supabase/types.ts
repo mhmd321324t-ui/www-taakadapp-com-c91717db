@@ -98,6 +98,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tasbeeh_counts: {
+        Row: {
+          count: number
+          created_at: string
+          date: string
+          dhikr_key: string
+          id: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          date?: string
+          dhikr_key: string
+          id?: string
+          total?: number
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          date?: string
+          dhikr_key?: string
+          id?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
