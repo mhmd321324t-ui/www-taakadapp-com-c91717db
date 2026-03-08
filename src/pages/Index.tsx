@@ -104,11 +104,12 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Full-screen Athan Alert */}
+      {/* Full-screen Athan Alert with Occasion support */}
       {alertPrayer && (
-        <AthanAlert
+        <OccasionAthanAlert
           prayerKey={alertPrayer.key}
           prayerTime={alertPrayer.time}
+          occasion={currentOccasion}
           onDismiss={() => setAlertPrayer(null)}
         />
       )}
