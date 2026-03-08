@@ -156,10 +156,10 @@ export default function Index() {
             </div>
           </div>
           <Link
-            to="/prayer-tracker"
+            to="/tracker"
             className="block w-full text-center rounded-xl bg-primary text-primary-foreground py-2.5 text-sm font-semibold"
           >
-            افحص ملفك الشخصي
+            متابعة الصلاة اليوم
           </Link>
         </motion.div>
       </div>
