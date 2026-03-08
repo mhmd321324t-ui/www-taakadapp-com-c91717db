@@ -1,10 +1,13 @@
+import { useState, useEffect } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
+import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
 import { Link } from 'react-router-dom';
-import { MapPin, Compass, BookOpen, Heart, Calculator, Moon } from 'lucide-react';
+import { MapPin, Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const quickAccessItems = [
   { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'bg-primary/10 text-primary' },
@@ -20,15 +23,51 @@ export default function Index() {
   const { prayers, hijriDate, loading } = usePrayerTimes(location.latitude, location.longitude);
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    return localStorage.getItem('athan-notifications') === 'true';
+  });
+
+  useAthanNotifications(prayers, notificationsEnabled);
+
+  const toggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        setNotificationsEnabled(true);
+        localStorage.setItem('athan-notifications', 'true');
+        toast.success('تم تفعيل إشعارات الأذان 🔔');
+      } else {
+        toast.error('لم يتم السماح بالإشعارات');
+      }
+    } else {
+      setNotificationsEnabled(false);
+      localStorage.setItem('athan-notifications', 'false');
+      toast.success('تم إيقاف إشعارات الأذان');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <div className="gradient-islamic islamic-pattern relative overflow-hidden px-5 pb-8 pt-12">
         <div className="relative z-10">
-          {/* Location */}
-          <div className="flex items-center gap-1.5 text-primary-foreground/80 text-sm mb-6">
-            <MapPin className="h-3.5 w-3.5" />
-            <span>{location.loading ? '...' : `${location.city}, ${location.country}`}</span>
+          {/* Location & Notification toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-1.5 text-primary-foreground/80 text-sm">
+              <MapPin className="h-3.5 w-3.5" />
+              <span>{location.loading ? '...' : `${location.city}, ${location.country}`}</span>
+            </div>
+            <button
+              onClick={toggleNotifications}
+              className="flex items-center gap-1.5 rounded-full bg-primary-foreground/15 px-3 py-1.5 text-xs text-primary-foreground backdrop-blur-sm transition-all active:scale-95"
+            >
+              {notificationsEnabled ? (
+                <Bell className="h-3.5 w-3.5 fill-current" />
+              ) : (
+                <BellOff className="h-3.5 w-3.5" />
+              )}
+              <span>{notificationsEnabled ? '🔔' : '🔕'}</span>
+            </button>
           </div>
 
           {/* Next Prayer */}
