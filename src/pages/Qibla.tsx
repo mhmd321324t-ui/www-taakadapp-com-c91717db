@@ -256,7 +256,7 @@ export default function Qibla() {
 
         {/* No compass warning */}
         {hasCompass === false && (
-          <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
             <div className="flex items-center gap-2 justify-end mb-2">
               <p className="text-sm font-bold text-destructive">البوصلة غير متاحة</p>
               <AlertTriangle className="h-5 w-5 text-destructive" />
