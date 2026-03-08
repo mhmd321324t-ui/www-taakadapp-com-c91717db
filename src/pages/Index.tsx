@@ -307,7 +307,7 @@ export default function Index() {
                 )}>
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-[11px] font-medium text-foreground text-center w-full break-words leading-tight">
+                <span className="text-xs font-medium text-foreground text-center w-full break-words leading-tight">
                   {(item as any).label || t((item as any).labelKey)}
                 </span>
               </Link>

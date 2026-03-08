@@ -41,7 +41,7 @@ export function BottomNav() {
                 />
               )}
               <item.icon className={cn('h-5 w-5 shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />
-              <span className="font-medium text-[10px] leading-tight text-center truncate w-full px-0.5">
+              <span className="font-medium text-[11px] leading-tight text-center truncate w-full px-0.5">
                 {item.labelKey ? t(item.labelKey) : item.label}
               </span>
             </Link>

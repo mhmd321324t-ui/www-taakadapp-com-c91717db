@@ -497,7 +497,7 @@ export default function QuranPlayer() {
                     </div>
                   </div>
 
-                  <p className="text-center text-[10px] text-muted-foreground mt-3">
+                  <p className="text-center text-xs text-muted-foreground mt-3">
                     {repeatMode === 'one' && '🔂 تكرار السورة الحالية'}
                     {repeatMode === 'all' && '🔁 تشغيل جميع السور تلقائياً'}
                     {repeatMode === 'none' && '➡️ الانتقال للسورة التالية تلقائياً'}
