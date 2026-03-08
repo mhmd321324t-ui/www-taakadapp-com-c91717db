@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User,
-  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare
+  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare, Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
