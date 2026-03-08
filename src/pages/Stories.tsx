@@ -268,7 +268,7 @@ export default function Stories() {
   const getCategoryInfo = (key: string) => CATEGORIES.find(c => c.key === key);
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic px-5 pb-6 pt-12">
         <div className="flex items-center justify-between">
@@ -393,8 +393,8 @@ export default function Stories() {
                             </div>
                           </div>
                         </div>
-                        <h3 className="font-bold text-foreground text-right mb-2">{story.title}</h3>
-                        <p className="text-xs text-muted-foreground text-right leading-relaxed line-clamp-3 mb-3">
+                        <h3 className="font-bold text-foreground text-right mb-2 break-words">{story.title}</h3>
+                        <p className="text-xs text-muted-foreground text-right leading-relaxed line-clamp-3 mb-3 break-words">
                           {story.content}
                         </p>
                         <div className="flex items-center justify-between border-t border-border pt-3">
@@ -440,8 +440,8 @@ export default function Stories() {
                       </div>
                     </div>
                   </div>
-                  <h2 className="text-lg font-bold text-foreground text-right mb-3">{selectedStory.title}</h2>
-                  <p className="text-sm text-foreground/80 text-right leading-[1.8] whitespace-pre-wrap">
+                  <h2 className="text-lg font-bold text-foreground text-right mb-3 break-words">{selectedStory.title}</h2>
+                  <p className="text-sm text-foreground/80 text-right leading-[1.8] whitespace-pre-wrap break-words">
                     {selectedStory.content}
                   </p>
                   <div className="flex items-center justify-between border-t border-border pt-3 mt-4">
