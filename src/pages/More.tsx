@@ -10,6 +10,7 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import AthanSelector from '@/components/AthanSelector';
 
 const features = [
   { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', bg: 'bg-primary' },
