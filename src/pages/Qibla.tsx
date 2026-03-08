@@ -260,7 +260,7 @@ export default function Qibla() {
               <p className="text-sm font-bold text-destructive">البوصلة غير متاحة</p>
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
-            <p className="text-xs text-muted-foreground text-right leading-relaxed">
+            <p className="text-xs text-muted-foreground text-right leading-relaxed break-words">
               جهازك لا يدعم البوصلة الرقمية أو أنك تستخدم متصفح كمبيوتر. استخدم الزاوية المعروضة ({Math.round(qiblaAngle)}°) مع بوصلة خارجية أو تطبيق خرائط.
             </p>
           </div>
