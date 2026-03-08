@@ -5,16 +5,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
 import { useAutoTheme } from '@/hooks/useAutoTheme';
-import AthanAlert from '@/components/AthanAlert';
+import OccasionAthanAlert from '@/components/OccasionAthanAlert';
+import OccasionBanner from '@/components/OccasionBanner';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import meccaImage from '@/assets/mecca.jpg';
+import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 
 const quickAccessItems = [
   { icon: Heart, labelKey: 'tasbeeh', path: '/tasbeeh', gradient: 'from-primary/20 to-islamic-teal/10' },
@@ -39,6 +41,10 @@ export default function Index() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
     return localStorage.getItem('athan-notifications') === 'true';
   });
+
+  // Current Islamic occasion
+  // hijriDay is a string like "14", we need to parse it to a number
+  const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
 
   // Full-screen athan alert state
   const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
@@ -99,11 +105,12 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Full-screen Athan Alert */}
+      {/* Full-screen Athan Alert with Occasion support */}
       {alertPrayer && (
-        <AthanAlert
+        <OccasionAthanAlert
           prayerKey={alertPrayer.key}
           prayerTime={alertPrayer.time}
+          occasion={currentOccasion}
           onDismiss={() => setAlertPrayer(null)}
         />
       )}
@@ -144,6 +151,10 @@ export default function Index() {
       </div>
 
       <AdBanner position="home-top" />
+
+      {/* Islamic Occasion Banner */}
+      {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
+
 
       {/* Goals card */}
       <div className="px-4 -mt-12 relative z-10 mb-5">
@@ -241,26 +252,28 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Ramadan Fajr/Maghrib bar */}
-      <div className="px-4 mb-5">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden"
-        >
-          <div className="absolute inset-0 islamic-pattern opacity-20" />
-          <div className="text-white text-sm relative z-10">
-            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
-            <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
-          </div>
-          <span className="text-3xl relative z-10">🌙</span>
-          <div className="text-white text-sm text-left relative z-10">
-            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
-            <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
-          </div>
-        </motion.div>
-      </div>
+      {/* Ramadan Fajr/Maghrib bar - only in Ramadan */}
+      {isRamadan(hijriMonthNumber) && (
+        <div className="px-4 mb-5">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden"
+          >
+            <div className="absolute inset-0 islamic-pattern opacity-20" />
+            <div className="text-white text-sm relative z-10">
+              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
+              <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
+            </div>
+            <span className="text-3xl relative z-10">🌙</span>
+            <div className="text-white text-sm text-left relative z-10">
+              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
+              <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Today's Prayers */}
       <div className="px-4 mb-5">
