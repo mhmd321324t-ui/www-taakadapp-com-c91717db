@@ -120,7 +120,7 @@ export default function Index() {
             <p className="text-white font-semibold text-sm tracking-wide">
               {location.loading ? '...' : location.city}
             </p>
-            <p className="text-white/60 text-[11px] font-arabic mt-0.5">
+            <p className="text-white/60 text-xs font-arabic mt-0.5">
               {loading ? '...' : hijriDate}
             </p>
           </div>
