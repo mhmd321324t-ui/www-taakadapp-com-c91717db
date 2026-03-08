@@ -234,6 +234,10 @@ export default function QuranPlayer() {
 
     // If a surah is selected, reload it with the new reciter.
     if (selectedSurahRef.current) {
+      // Unlock audio context immediately within user gesture by calling play() on current src
+      if (wasPlaying) {
+        try { await audio.play(); } catch { /* expected, just unlocking */ }
+      }
       await startSurah(selectedSurahRef.current, newReciterId, { autoplay: wasPlaying });
     }
   };
