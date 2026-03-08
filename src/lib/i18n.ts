@@ -110,6 +110,12 @@ const arabicStrings: Record<string, string> = {
   friday: 'جمع',
   saturday: 'سبت',
 
+  // Qibla
+  qiblaFromNorth: 'من الشمال',
+  qiblaFromEast: 'من الشرق',
+  qiblaFromSouth: 'من الجنوب',
+  qiblaFromWest: 'من الغرب',
+
   // Duas page sections
   duasAndDhikr: 'الدُعاء والذكر',
   daily: 'يومي',
