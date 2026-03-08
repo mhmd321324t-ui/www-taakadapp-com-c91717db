@@ -313,9 +313,9 @@ export default function Qibla() {
 
         {/* No location warning */}
         {isNoLocation && (
-          <div className="w-full max-w-sm mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-3 flex items-center gap-2 justify-end">
-            <p className="text-xs text-muted-foreground">لم يتم تحديد موقعك - فعّل خدمات الموقع</p>
-            <MapPin className="h-4 w-4 text-destructive" />
+          <div className="mb-4 flex w-full max-w-sm items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 justify-end">
+            <p className="min-w-0 text-xs text-muted-foreground break-words text-right">لم يتم تحديد موقعك - فعّل خدمات الموقع</p>
+            <MapPin className="h-4 w-4 shrink-0 text-destructive" />
           </div>
         )}
 
