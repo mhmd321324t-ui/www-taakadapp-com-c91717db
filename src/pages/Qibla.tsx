@@ -158,7 +158,7 @@ export default function Qibla() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic relative px-5 pb-16 pt-12">
         <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export default function Qibla() {
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="flex flex-col items-center px-5 -mt-2">
+      <div className="-mt-2 flex w-full flex-col items-center px-5">
 
         {/* Instructions panel */}
         <AnimatePresence>
