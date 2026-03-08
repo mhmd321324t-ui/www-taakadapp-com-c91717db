@@ -241,7 +241,7 @@ export default function Index() {
           </div>
           <span className="text-3xl relative z-10">🌙</span>
           <div className="text-white text-sm text-left relative z-10">
-            <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">الفجر</span>
+            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
             <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
           </div>
         </motion.div>
