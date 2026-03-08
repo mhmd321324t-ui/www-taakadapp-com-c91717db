@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -9,6 +10,7 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import AthanSelector from '@/components/AthanSelector';
 
 const features = [
   { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', bg: 'bg-primary' },
@@ -98,6 +100,12 @@ export default function More() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Athan Sound Selector */}
+      <div className="px-5 mt-5">
+        <h2 className="text-sm font-bold text-foreground mb-3">🔊 صوت الأذان</h2>
+        <AthanSelector />
       </div>
     </div>
   );
