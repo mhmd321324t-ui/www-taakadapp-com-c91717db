@@ -51,9 +51,8 @@ export async function schedulePrayerNotifications(
         badge: '/pwa-icon-192.png',
         tag: `prayer-${prayer.key}`,
         requireInteraction: true,
-        vibrate: [200, 100, 200, 100, 200],
         data: { url: '/' },
-      });
+      } as NotificationOptions);
     }, diff) as unknown as number;
 
     timers.push(timer);
