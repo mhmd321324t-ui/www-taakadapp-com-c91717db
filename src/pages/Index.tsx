@@ -16,7 +16,7 @@ const quickAccessItems = [
 
 export default function Index() {
   const { t, isRTL } = useLocale();
-  const location = useLocation();
+  const location = useGeoLocation();
   const { prayers, hijriDate, loading } = usePrayerTimes(location.latitude, location.longitude);
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 

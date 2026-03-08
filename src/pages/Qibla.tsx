@@ -28,7 +28,7 @@ function calculateDistance(lat1: number, lng1: number): number {
 
 export default function Qibla() {
   const { t } = useLocale();
-  const location = useLocation();
+  const location = useGeoLocation();
   const [compass, setCompass] = useState(0);
   const qiblaAngle = calculateQiblaDirection(location.latitude, location.longitude);
   const distance = calculateDistance(location.latitude, location.longitude);
