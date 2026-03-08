@@ -1,14 +1,14 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Clock, BookOpen, Heart, MoreHorizontal } from 'lucide-react';
+import { Home, Clock, BookOpen, MessageSquare, MoreHorizontal } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 import { cn } from '@/lib/utils';
 
-// Order: Right to Left in RTL → Home, PrayerTimes, Quran, Duas, More
+// Order: Right to Left in RTL → Home, PrayerTimes, Quran, Stories, More
 const navItems = [
   { path: '/', icon: Home, labelKey: 'home' },
   { path: '/prayer-times', icon: Clock, labelKey: 'prayerTimes' },
   { path: '/quran', icon: BookOpen, labelKey: 'quran' },
-  { path: '/duas', icon: Heart, labelKey: 'duas' },
+  { path: '/stories', icon: MessageSquare, label: 'قصص' },
   { path: '/more', icon: MoreHorizontal, labelKey: 'more' },
 ];
 
