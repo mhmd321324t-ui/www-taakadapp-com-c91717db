@@ -43,7 +43,8 @@ export default function Index() {
   });
 
   // Current Islamic occasion
-  const currentOccasion = getCurrentOccasion(hijriMonthNumber, hijriDay);
+  // hijriDay is a string like "14", we need to parse it to a number
+  const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
 
   // Full-screen athan alert state
   const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
