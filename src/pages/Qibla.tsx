@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
-import { MapPin } from 'lucide-react';
+import { MapPin, AlertTriangle, RotateCcw, Smartphone, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -38,51 +38,275 @@ const compassDirections = [
   { label: 'NW', angle: 315 },
 ];
 
-export default function Qibla() {
-  const { t } = useLocale();
-  const location = useGeoLocation();
-  const [compass, setCompass] = useState(0);
-  const qiblaAngle = calculateQiblaDirection(location.latitude, location.longitude);
-  const distance = calculateDistance(location.latitude, location.longitude);
+// Smooth compass heading to avoid jitter
+function useSmoothedCompass() {
+  const [heading, setHeading] = useState(0);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [hasCompass, setHasCompass] = useState<boolean | null>(null);
+  const [permissionNeeded, setPermissionNeeded] = useState(false);
+  const headingBuffer = useRef<number[]>([]);
+  const BUFFER_SIZE = 8;
 
-  useEffect(() => {
+  const smoothHeading = useCallback((raw: number) => {
+    const buf = headingBuffer.current;
+    buf.push(raw);
+    if (buf.length > BUFFER_SIZE) buf.shift();
+
+    // Circular mean to handle wrap-around at 0/360
+    let sinSum = 0, cosSum = 0;
+    for (const h of buf) {
+      sinSum += Math.sin(h * Math.PI / 180);
+      cosSum += Math.cos(h * Math.PI / 180);
+    }
+    const avg = Math.atan2(sinSum / buf.length, cosSum / buf.length) * 180 / Math.PI;
+    return ((avg % 360) + 360) % 360;
+  }, []);
+
+  const requestPermission = useCallback(async () => {
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const r = await (DeviceOrientationEvent as any).requestPermission();
+        if (r === 'granted') {
+          setPermissionNeeded(false);
+          startListening();
+        }
+      } catch {
+        setHasCompass(false);
+      }
+    }
+  }, []);
+
+  const startListening = useCallback(() => {
     const handler = (e: DeviceOrientationEvent) => {
-      if ((e as any).webkitCompassHeading) {
-        setCompass((e as any).webkitCompassHeading);
-      } else if (e.alpha !== null) {
-        setCompass(360 - e.alpha);
+      let raw: number | null = null;
+
+      // iOS Safari
+      if ((e as any).webkitCompassHeading != null) {
+        raw = (e as any).webkitCompassHeading;
+        if ((e as any).webkitCompassAccuracy != null) {
+          setAccuracy((e as any).webkitCompassAccuracy);
+        }
+      }
+      // Android / standard
+      else if (e.alpha != null) {
+        raw = (360 - e.alpha) % 360;
+        // Check if absolute orientation is available
+        if ((e as any).absolute === false) {
+          setAccuracy(null); // Unknown accuracy for relative orientation
+        } else {
+          setAccuracy(15); // Reasonable estimate for absolute
+        }
+      }
+
+      if (raw != null) {
+        setHasCompass(true);
+        setHeading(smoothHeading(raw));
       }
     };
 
+    window.addEventListener('deviceorientation', handler, true);
+    
+    // Detect if compass events ever fire
+    const timeout = setTimeout(() => {
+      if (headingBuffer.current.length === 0) {
+        setHasCompass(false);
+      }
+    }, 3000);
+
+    return () => {
+      window.removeEventListener('deviceorientation', handler, true);
+      clearTimeout(timeout);
+    };
+  }, [smoothHeading]);
+
+  useEffect(() => {
     if (typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      (DeviceOrientationEvent as any).requestPermission().then((r: string) => {
-        if (r === 'granted') window.addEventListener('deviceorientation', handler);
-      });
+      // iOS - needs permission
+      setPermissionNeeded(true);
     } else {
-      window.addEventListener('deviceorientation', handler);
+      // Android / desktop - start directly
+      const cleanup = startListening();
+      return cleanup;
     }
+  }, [startListening]);
 
-    return () => window.removeEventListener('deviceorientation', handler);
-  }, []);
+  return { heading, accuracy, hasCompass, permissionNeeded, requestPermission };
+}
 
+export default function Qibla() {
+  const { t } = useLocale();
+  const location = useGeoLocation();
+  const { heading: compass, accuracy, hasCompass, permissionNeeded, requestPermission } = useSmoothedCompass();
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [calibrating, setCalibrating] = useState(false);
+
+  const qiblaAngle = calculateQiblaDirection(location.latitude, location.longitude);
+  const distance = calculateDistance(location.latitude, location.longitude);
   const rotation = qiblaAngle - compass;
-  const isAligned = Math.abs(((rotation % 360) + 360) % 360) < 15 || Math.abs(((rotation % 360) + 360) % 360) > 345;
+  const normalizedRotation = ((rotation % 360) + 360) % 360;
+  const isAligned = normalizedRotation < 10 || normalizedRotation > 350;
+  const isLowAccuracy = accuracy != null && accuracy > 25;
+  const isNoLocation = location.latitude === 0 && location.longitude === 0;
+
+  const calibrate = () => {
+    setCalibrating(true);
+    setTimeout(() => setCalibrating(false), 3000);
+  };
 
   return (
     <div className="min-h-screen pb-safe" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic relative px-5 pb-16 pt-12">
-        <div className="text-right">
-          <h1 className="text-2xl font-bold text-white">{t('qibla')}</h1>
-          <p className="text-white/60 text-sm mt-1">{t('qiblaDirection')}</p>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setShowInstructions(!showInstructions)}
+            className="glass-card rounded-full p-2.5"
+          >
+            <Info className="h-5 w-5 text-white/80" />
+          </button>
+          <div className="text-right">
+            <h1 className="text-2xl font-bold text-white">{t('qibla')}</h1>
+            <p className="text-white/60 text-sm mt-1">{t('qiblaDirection')}</p>
+          </div>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       <div className="flex flex-col items-center px-5 -mt-2">
+
+        {/* Instructions panel */}
+        <AnimatePresence>
+          {showInstructions && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="w-full max-w-sm mb-5 overflow-hidden"
+            >
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <div className="flex items-center gap-2 justify-end">
+                  <h3 className="font-bold text-foreground text-sm">📋 كيف تستخدم البوصلة</h3>
+                </div>
+                <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
+                  <div className="flex items-start gap-2 justify-end">
+                    <p className="text-right">
+                      <span className="text-primary font-bold">١.</span> ضع الهاتف بشكل <span className="text-foreground font-medium">أفقي مسطّح</span> على راحة يدك
+                    </p>
+                    <span className="text-lg">📱</span>
+                  </div>
+                  <div className="flex items-start gap-2 justify-end">
+                    <p className="text-right">
+                      <span className="text-primary font-bold">٢.</span> ابتعد عن <span className="text-foreground font-medium">المعادن والأجهزة الإلكترونية</span> (سماعات، لابتوب)
+                    </p>
+                    <span className="text-lg">🧲</span>
+                  </div>
+                  <div className="flex items-start gap-2 justify-end">
+                    <p className="text-right">
+                      <span className="text-primary font-bold">٣.</span> لمعايرة البوصلة: حرّك الهاتف بشكل <span className="text-foreground font-medium">رقم 8</span> عدة مرات
+                    </p>
+                    <span className="text-lg">♾️</span>
+                  </div>
+                  <div className="flex items-start gap-2 justify-end">
+                    <p className="text-right">
+                      <span className="text-primary font-bold">٤.</span> أدِر جسمك حتى تظهر <span className="text-foreground font-medium">🕋 في الأعلى</span> ويتحول اللون إلى <span className="text-primary font-medium">أخضر</span>
+                    </p>
+                    <span className="text-lg">🧭</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowInstructions(false)}
+                  className="w-full text-center text-xs text-primary font-medium pt-1"
+                >
+                  فهمت ✓
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* iOS Permission request */}
+        {permissionNeeded && (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={requestPermission}
+            className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-4 flex items-center gap-3 justify-center"
+          >
+            <Smartphone className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium text-primary">اضغط هنا لتفعيل البوصلة</span>
+          </motion.button>
+        )}
+
+        {/* No compass warning */}
+        {hasCompass === false && (
+          <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+            <div className="flex items-center gap-2 justify-end mb-2">
+              <p className="text-sm font-bold text-destructive">البوصلة غير متاحة</p>
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            </div>
+            <p className="text-xs text-muted-foreground text-right leading-relaxed">
+              جهازك لا يدعم البوصلة الرقمية أو أنك تستخدم متصفح كمبيوتر. استخدم الزاوية المعروضة ({Math.round(qiblaAngle)}°) مع بوصلة خارجية أو تطبيق خرائط.
+            </p>
+          </div>
+        )}
+
+        {/* Low accuracy warning */}
+        <AnimatePresence>
+          {isLowAccuracy && !calibrating && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-sm mb-4 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-3 flex items-center gap-2 justify-between"
+            >
+              <button
+                onClick={calibrate}
+                className="text-xs bg-[hsl(var(--islamic-gold))]/20 text-[hsl(var(--islamic-gold))] px-3 py-1.5 rounded-full font-medium flex items-center gap-1"
+              >
+                <RotateCcw className="h-3 w-3" />
+                معايرة
+              </button>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground">دقة البوصلة منخفضة - حرّك الهاتف بشكل ∞</p>
+                <AlertTriangle className="h-4 w-4 text-[hsl(var(--islamic-gold))]" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Calibration animation */}
+        <AnimatePresence>
+          {calibrating && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-sm mb-4 rounded-xl bg-primary/5 border border-primary/20 p-4 text-center"
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+                className="text-3xl inline-block mb-2"
+              >
+                ♾️
+              </motion.div>
+              <p className="text-sm text-primary font-medium">حرّك هاتفك بشكل رقم 8...</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* No location warning */}
+        {isNoLocation && (
+          <div className="w-full max-w-sm mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-3 flex items-center gap-2 justify-end">
+            <p className="text-xs text-muted-foreground">لم يتم تحديد موقعك - فعّل خدمات الموقع</p>
+            <MapPin className="h-4 w-4 text-destructive" />
+          </div>
+        )}
+
         {/* Compass */}
-        <div className="relative w-[300px] h-[300px] mb-8">
+        <div className="relative w-[300px] h-[300px] mb-6">
           {/* Outer decorative ring */}
           <div className="absolute inset-0 rounded-full border-2 border-border" />
           
@@ -113,8 +337,8 @@ export default function Qibla() {
           {/* Rotating compass body */}
           <motion.div
             className="absolute inset-3 rounded-full bg-card border border-border shadow-lg"
-            style={{ transform: `rotate(${-compass}deg)` }}
-            transition={{ type: 'spring', stiffness: 40, damping: 15 }}
+            animate={{ rotate: -compass }}
+            transition={{ type: 'spring', stiffness: 60, damping: 20 }}
           >
             {/* Cardinal direction labels */}
             {compassDirections.map(({ label, angle }) => {
@@ -122,7 +346,7 @@ export default function Qibla() {
               const r = label.length === 1 ? 105 : 108;
               const isPrimary = label.length === 1;
               return (
-                <span
+                <motion.span
                   key={label}
                   className={cn(
                     'absolute text-center font-bold',
@@ -132,25 +356,25 @@ export default function Qibla() {
                   style={{
                     left: `calc(50% + ${r * Math.cos(rad)}px)`,
                     top: `calc(50% + ${r * Math.sin(rad)}px)`,
-                    transform: `translate(-50%, -50%) rotate(${compass}deg)`,
+                    transform: `translate(-50%, -50%)`,
                   }}
+                  animate={{ rotate: compass }}
+                  transition={{ type: 'spring', stiffness: 60, damping: 20 }}
                 >
                   {label}
-                </span>
+                </motion.span>
               );
             })}
 
             {/* Qibla indicator */}
             <div
               className="absolute inset-0"
-              style={{
-                transform: `rotate(${qiblaAngle}deg)`,
-              }}
+              style={{ transform: `rotate(${qiblaAngle}deg)` }}
             >
-              <div className="absolute left-1/2 -translate-x-1/2 top-4 flex flex-col items-center">
+              <div className="absolute left-1/2 -translate-x-1/2 top-3 flex flex-col items-center">
                 <motion.div
-                  animate={isAligned ? { scale: [1, 1.2, 1] } : {}}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  animate={isAligned ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+                  transition={{ repeat: isAligned ? Infinity : 0, duration: 1.2 }}
                   className="text-3xl"
                   style={{ transform: `rotate(${-qiblaAngle + compass}deg)` }}
                 >
@@ -167,23 +391,35 @@ export default function Qibla() {
               className="absolute inset-0"
               style={{ transform: `rotate(${qiblaAngle}deg)` }}
             >
-              <div className="absolute left-1/2 top-[18%] -translate-x-[0.5px] w-[2px] h-[32%] rounded-full bg-gradient-to-b from-primary to-primary/20" />
+              <div className={cn(
+                "absolute left-1/2 top-[18%] -translate-x-[0.5px] w-[2px] h-[32%] rounded-full transition-colors duration-500",
+                isAligned
+                  ? "bg-gradient-to-b from-primary to-primary/40"
+                  : "bg-gradient-to-b from-muted-foreground/50 to-muted-foreground/10"
+              )} />
             </div>
           </motion.div>
 
           {/* Center point */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className={cn(
-              'w-4 h-4 rounded-full border-2 transition-colors duration-500',
-              isAligned
-                ? 'bg-primary border-primary shadow-lg shadow-primary/30'
-                : 'bg-card border-primary/50'
-            )} />
+            <motion.div
+              animate={isAligned ? { scale: [1, 1.3, 1], boxShadow: ['0 0 0 0 hsl(var(--primary) / 0)', '0 0 20px 8px hsl(var(--primary) / 0.3)', '0 0 0 0 hsl(var(--primary) / 0)'] } : {}}
+              transition={{ repeat: isAligned ? Infinity : 0, duration: 1.5 }}
+              className={cn(
+                'w-4 h-4 rounded-full border-2 transition-colors duration-500',
+                isAligned
+                  ? 'bg-primary border-primary'
+                  : 'bg-card border-primary/50'
+              )}
+            />
           </div>
 
           {/* Top indicator (fixed) */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1">
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-primary" />
+            <div className={cn(
+              "w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] transition-colors duration-500",
+              isAligned ? "border-t-primary" : "border-t-muted-foreground"
+            )} />
           </div>
         </div>
 
@@ -191,12 +427,12 @@ export default function Qibla() {
         <AnimatePresence>
           {isAligned && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mb-4 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="mb-4 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20"
             >
-              <p className="text-sm font-medium text-primary">🕋 اتجاه القبلة ✓</p>
+              <p className="text-sm font-bold text-primary">🕋 هذا اتجاه القبلة ✓</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -205,6 +441,12 @@ export default function Qibla() {
         <div className="text-center mb-6">
           <p className="text-5xl font-bold text-foreground tabular-nums">
             {Math.round(qiblaAngle)}°
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {qiblaAngle > 315 || qiblaAngle <= 45 ? t('qiblaFromNorth') || 'من الشمال' :
+             qiblaAngle > 45 && qiblaAngle <= 135 ? t('qiblaFromEast') || 'من الشرق' :
+             qiblaAngle > 135 && qiblaAngle <= 225 ? t('qiblaFromSouth') || 'من الجنوب' :
+             t('qiblaFromWest') || 'من الغرب'}
           </p>
         </div>
 
@@ -221,20 +463,36 @@ export default function Qibla() {
             <p className="text-[10px] text-muted-foreground">{t('km')}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4 text-center">
-            <span className="text-xl block mb-1">🧭</span>
+            <span className="text-xl block mb-1">📍</span>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
-              {t('qiblaDirection')}
+              {t('location')}
             </p>
-            <p className="text-lg font-bold text-foreground">
-              {Math.round(qiblaAngle)}°
+            <p className="text-sm font-bold text-foreground truncate">
+              {location.city || '...'}
             </p>
-            <p className="text-[10px] text-muted-foreground">
-              {qiblaAngle > 315 || qiblaAngle <= 45 ? 'N' :
-               qiblaAngle > 45 && qiblaAngle <= 135 ? 'E' :
-               qiblaAngle > 135 && qiblaAngle <= 225 ? 'S' : 'W'}
+            <p className="text-[10px] text-muted-foreground truncate">
+              {location.country || t('detectLocation')}
             </p>
           </div>
         </div>
+
+        {/* Accuracy info */}
+        {accuracy != null && (
+          <div className="mt-4 flex items-center gap-2 text-[10px] text-muted-foreground">
+            <div className={cn(
+              'w-2 h-2 rounded-full',
+              accuracy <= 10 ? 'bg-primary' :
+              accuracy <= 25 ? 'bg-[hsl(var(--islamic-gold))]' :
+              'bg-destructive'
+            )} />
+            <span>
+              {accuracy <= 10 ? 'دقة عالية' :
+               accuracy <= 25 ? 'دقة متوسطة' :
+               'دقة منخفضة - يرجى المعايرة'}
+              {' '}(±{Math.round(accuracy)}°)
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
