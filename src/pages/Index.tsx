@@ -105,6 +105,12 @@ export default function Index() {
         </div>
       </div>
 
+      {/* Hijri Calendar & Events */}
+      <div className="px-5 mb-5">
+        <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('hijriCalendar')}</h2>
+        <HijriCalendar />
+      </div>
+
       {/* Today's Prayers Mini */}
       <div className="px-5 mb-6">
         <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('prayerTimes')}</h2>
