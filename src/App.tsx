@@ -54,6 +54,7 @@ const App = () => (
                   <Route path="/account" element={<Account />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/install" element={<Install />} />
+                  <Route path="/daily-duas" element={<DailyDuas />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
