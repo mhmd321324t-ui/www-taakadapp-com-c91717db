@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
+import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushSubscription';
 
 // Lazy load below-the-fold components
 const VideoContentCarousel = lazy(() => import('@/components/VideoContentCarousel'));
@@ -90,6 +91,13 @@ export default function Index() {
   useAthanNotifications(prayers, notificationsEnabled, handleAthanAlert);
   useAutoTheme(prayers);
 
+  // Auto-register push subscription when notifications are enabled and location is available
+  useEffect(() => {
+    if (notificationsEnabled && location.latitude && location.longitude && !location.loading) {
+      subscribeToPush(location.latitude, location.longitude, location.calculationMethod).catch(console.error);
+    }
+  }, [notificationsEnabled, location.latitude, location.longitude, location.loading]);
+
   const toggleNotifications = async () => {
     if (!notificationsEnabled) {
       const granted = await requestNotificationPermission();
@@ -103,6 +111,7 @@ export default function Index() {
     } else {
       setNotificationsEnabled(false);
       localStorage.setItem('athan-notifications', 'false');
+      unsubscribeFromPush().catch(console.error);
       toast.success(t('notificationsDisabled'));
     }
   };

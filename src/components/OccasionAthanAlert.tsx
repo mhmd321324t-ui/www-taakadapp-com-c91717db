@@ -3,14 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2 } from 'lucide-react';
 import { stopAthan } from '@/lib/athanAudio';
 import { IslamicOccasion } from '@/data/islamicOccasions';
+import { useLocale } from '@/hooks/useLocale';
 import RamadanCannon from './RamadanCannon';
 
-const PRAYER_INFO: Record<string, { name: string; icon: string }> = {
-  fajr: { name: 'الفجر', icon: '🌅' },
-  dhuhr: { name: 'الظهر', icon: '🌞' },
-  asr: { name: 'العصر', icon: '🌤️' },
-  maghrib: { name: 'المغرب', icon: '🌅' },
-  isha: { name: 'العشاء', icon: '🌙' },
+const PRAYER_INFO: Record<string, { nameAr: string; nameEn: string; icon: string }> = {
+  fajr: { nameAr: 'الفجر', nameEn: 'Fajr', icon: '🌅' },
+  dhuhr: { nameAr: 'الظهر', nameEn: 'Dhuhr', icon: '🌞' },
+  asr: { nameAr: 'العصر', nameEn: 'Asr', icon: '🌤️' },
+  maghrib: { nameAr: 'المغرب', nameEn: 'Maghrib', icon: '🌅' },
+  isha: { nameAr: 'العشاء', nameEn: 'Isha', icon: '🌙' },
 };
 
 interface OccasionAthanAlertProps {
@@ -20,14 +21,42 @@ interface OccasionAthanAlertProps {
   onDismiss: () => void;
 }
 
+// Twinkling star component
+function Star({ delay, x, y, size }: { delay: number; x: string; y: string; size: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{
+        opacity: [0, 1, 0.3, 1, 0],
+        scale: [0, 1, 0.8, 1, 0],
+      }}
+      transition={{
+        duration: 3,
+        delay,
+        repeat: Infinity,
+        repeatDelay: Math.random() * 2,
+      }}
+      className="absolute rounded-full bg-white"
+      style={{
+        left: x,
+        top: y,
+        width: size,
+        height: size,
+        filter: `blur(${size > 2 ? 1 : 0}px)`,
+      }}
+    />
+  );
+}
+
 export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, onDismiss }: OccasionAthanAlertProps) {
+  const { t, locale } = useLocale();
+  const isAr = locale === 'ar';
   const [visible, setVisible] = useState(false);
   const [showCannon, setShowCannon] = useState(false);
   const [cannonDone, setCannonDone] = useState(false);
 
   useEffect(() => {
     if (prayerKey) {
-      // If Ramadan + Maghrib, show cannon first
       if (occasion?.hasCannon && prayerKey === 'maghrib') {
         setShowCannon(true);
       } else {
@@ -62,9 +91,30 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
   const isTakbirat = occasion?.takbirat;
   const isIftar = occasion?.hasCannon && prayerKey === 'maghrib';
 
+  const prayerName = isAr ? info.nameAr : info.nameEn;
+  const titleText = isIftar
+    ? (isAr ? 'حان وقت الإفطار' : 'Time to break your fast')
+    : isTakbirat
+      ? 'اللّهُ أَكْبَرُ'
+      : (isAr ? 'حان وقت الصلاة' : 'Time for Prayer');
+  const prayerLabel = isIftar
+    ? (isAr ? 'الإفطار' : 'Iftar')
+    : (isAr ? `صلاة ${info.nameAr}` : `${info.nameEn} Prayer`);
+  const audioText = isTakbirat
+    ? (isAr ? 'جاري تشغيل التكبيرات...' : 'Playing Takbirat...')
+    : (isAr ? 'جاري تشغيل الأذان...' : 'Playing Athan...');
+  const dismissText = isAr ? 'إغلاق' : 'Dismiss';
+
+  // Generate stars
+  const stars = Array.from({ length: 30 }, (_, i) => ({
+    delay: Math.random() * 3,
+    x: `${Math.random() * 100}%`,
+    y: `${Math.random() * 60}%`,
+    size: Math.random() > 0.7 ? 3 : Math.random() > 0.4 ? 2 : 1,
+  }));
+
   return (
     <>
-      {/* Cannon animation for Ramadan Maghrib */}
       <RamadanCannon show={showCannon} onComplete={handleCannonComplete} />
 
       <AnimatePresence>
@@ -75,24 +125,39 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b ${gradient}`}
-            dir="rtl"
+            dir={isAr ? 'rtl' : 'ltr'}
           >
+            {/* Stars layer */}
+            {stars.map((star, i) => (
+              <Star key={i} {...star} />
+            ))}
+
             {/* Islamic pattern overlay */}
             <div className="absolute inset-0 islamic-pattern opacity-10" />
 
-            {/* Animated particles for occasions */}
-            {occasion && Array.from({ length: 15 }).map((_, i) => (
+            {/* Crescent moon decoration */}
+            <motion.div
+              initial={{ opacity: 0, y: -50, rotate: -30 }}
+              animate={{ opacity: 0.15, y: 0, rotate: 0 }}
+              transition={{ delay: 0.5, duration: 1.5, type: 'spring' }}
+              className="absolute top-16 right-8 text-8xl select-none pointer-events-none"
+            >
+              🌙
+            </motion.div>
+
+            {/* Animated occasion particles */}
+            {occasion && Array.from({ length: 12 }).map((_, i) => (
               <motion.div
-                key={i}
+                key={`p-${i}`}
                 initial={{ opacity: 0, y: 100 }}
                 animate={{
-                  opacity: [0, 0.6, 0],
-                  y: [-20, -200],
-                  x: [0, (Math.random() - 0.5) * 100],
+                  opacity: [0, 0.5, 0],
+                  y: [-20, -250],
+                  x: [0, (Math.random() - 0.5) * 120],
                 }}
                 transition={{
-                  duration: 3 + Math.random() * 2,
-                  delay: i * 0.3,
+                  duration: 3.5 + Math.random() * 2,
+                  delay: i * 0.4,
                   repeat: Infinity,
                 }}
                 className="absolute bottom-0 text-2xl"
@@ -105,12 +170,12 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
             {/* Close button */}
             <button
               onClick={handleDismiss}
-              className="absolute top-8 left-6 p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 transition-all active:scale-95 z-10"
+              className="absolute top-8 left-6 p-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all active:scale-90 z-10"
             >
               <X className="h-5 w-5 text-white" />
             </button>
 
-            {/* Content */}
+            {/* Main content */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -123,30 +188,33 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                   initial={{ y: -30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-4"
+                  className="bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-5 py-2 mb-5"
                 >
-                  <span className="text-white/90 text-xs font-medium">{occasion.nameAr}</span>
+                  <span className="text-white/90 text-xs font-bold tracking-wide">
+                    {isAr ? occasion.nameAr : occasion.nameEn}
+                  </span>
                 </motion.div>
               )}
 
-              {/* Prayer icon */}
-              <motion.span
+              {/* Prayer icon with glow */}
+              <motion.div
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
                 transition={{ delay: 0.3, type: 'spring' }}
-                className="text-7xl mb-6"
+                className="relative mb-6"
               >
-                {isIftar ? '🌙' : info.icon}
-              </motion.span>
+                <div className="absolute inset-0 blur-2xl bg-white/20 rounded-full scale-150" />
+                <span className="text-8xl relative">{isIftar ? '🌙' : info.icon}</span>
+              </motion.div>
 
-              {/* Title */}
+              {/* Subtitle */}
               <motion.p
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-white/60 text-lg font-medium mb-2"
+                className="text-white/50 text-lg font-medium mb-2"
               >
-                {isIftar ? 'حان وقت الإفطار' : isTakbirat ? 'اللّهُ أَكْبَرُ' : 'حان وقت الصلاة'}
+                {titleText}
               </motion.p>
 
               {/* Prayer name */}
@@ -154,9 +222,9 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-white text-5xl font-bold mb-4"
+                className="text-white text-5xl font-bold mb-4 drop-shadow-lg"
               >
-                {isIftar ? 'الإفطار' : `صلاة ${info.name}`}
+                {prayerLabel}
               </motion.h1>
 
               {/* Time */}
@@ -164,59 +232,68 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="text-white/80 text-3xl font-light tabular-nums mb-6"
+                className="text-white/80 text-4xl font-light tabular-nums mb-6 drop-shadow-md"
               >
                 {prayerTime}
               </motion.p>
 
               {/* Iftar dua */}
-              {isIftar && (
+              {isIftar && occasion?.duaAr && (
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.7 }}
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/15 px-6 py-4 mb-6 max-w-xs"
+                  className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 px-6 py-4 mb-6 max-w-xs"
                 >
                   <p className="text-white text-base font-arabic leading-[2] text-center">
-                    {occasion?.duaAr}
+                    {occasion.duaAr}
                   </p>
-                  <p className="text-white/40 text-xs mt-2">دعاء الإفطار</p>
+                  <p className="text-white/40 text-xs mt-2">
+                    {isAr ? 'دعاء الإفطار' : 'Iftar Dua'}
+                  </p>
                 </motion.div>
               )}
 
-              {/* Audio indicator */}
+              {/* Audio indicator with animated bars */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 }}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-3 border border-white/20 mb-10"
+                className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 py-3.5 border border-white/20 mb-10"
               >
-                <Volume2 className="h-4 w-4 text-white/70 animate-pulse" />
-                <span className="text-white/70 text-sm">
-                  {isTakbirat ? 'جاري تشغيل التكبيرات...' : 'جاري تشغيل الأذان...'}
-                </span>
+                <div className="flex items-end gap-0.5 h-4">
+                  {[0, 0.1, 0.2, 0.15, 0.05].map((delay, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ height: ['40%', '100%', '40%'] }}
+                      transition={{ duration: 0.8, delay, repeat: Infinity }}
+                      className="w-0.5 bg-white/60 rounded-full"
+                    />
+                  ))}
+                </div>
+                <span className="text-white/70 text-sm font-medium">{audioText}</span>
               </motion.div>
 
-              {/* Decorative verse / occasion message */}
+              {/* Verse / occasion message */}
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
-                className="text-white/30 text-sm font-arabic leading-relaxed max-w-xs"
+                className="text-white/25 text-sm font-arabic leading-relaxed max-w-xs"
               >
                 {occasion?.message || 'حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ'}
               </motion.p>
             </motion.div>
 
-            {/* Dismiss button at bottom */}
+            {/* Dismiss button */}
             <motion.button
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.8 }}
               onClick={handleDismiss}
-              className="absolute bottom-12 bg-white/15 backdrop-blur-sm border border-white/25 text-white font-semibold rounded-2xl px-10 py-4 text-base transition-all active:scale-95 z-10"
+              className="absolute bottom-12 bg-white/15 backdrop-blur-md border border-white/25 text-white font-bold rounded-2xl px-12 py-4 text-base transition-all active:scale-95 z-10 shadow-lg"
             >
-              إغلاق
+              {dismissText}
             </motion.button>
           </motion.div>
         )}

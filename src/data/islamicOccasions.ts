@@ -189,14 +189,28 @@ export function getCurrentOccasion(hijriMonth: number, hijriDay: number): Islami
   const day = parseInt(String(hijriDay));
   const month = parseInt(String(hijriMonth));
 
-  // Check more specific occasions first (e.g., Laylat al-Qadr before Ramadan)
-  const sorted = [...ISLAMIC_OCCASIONS].sort((a, b) => {
-    const rangeA = a.hijriDayEnd - a.hijriDayStart;
-    const rangeB = b.hijriDayEnd - b.hijriDayStart;
-    return rangeA - rangeB; // More specific (smaller range) first
-  });
+  // Guard: don't return occasions when hijri data hasn't loaded
+  if (isNaN(day) || isNaN(month) || month === 0 || day === 0) return null;
 
-  for (const occasion of sorted) {
+  // Special handling for Ramadan: always return the Ramadan occasion
+  // (laylat-al-qadr is a subset, not a separate display occasion)
+  if (month === 9) {
+    const ramadan = ISLAMIC_OCCASIONS.find(o => o.id === 'ramadan');
+    if (ramadan && day >= 1 && day <= 30) {
+      if (day >= 21) {
+        // Last 10 nights — update message but keep Ramadan occasion
+        return {
+          ...ramadan,
+          message: 'العشر الأواخر من رمضان - اللهم إنك عفو تحب العفو فاعف عنا',
+        };
+      }
+      return ramadan;
+    }
+  }
+
+  // For all other occasions (skip ramadan & laylat-al-qadr in the loop)
+  for (const occasion of ISLAMIC_OCCASIONS) {
+    if (occasion.id === 'ramadan' || occasion.id === 'laylat-al-qadr') continue;
     if (occasion.hijriMonth === month && day >= occasion.hijriDayStart && day <= occasion.hijriDayEnd) {
       return occasion;
     }
