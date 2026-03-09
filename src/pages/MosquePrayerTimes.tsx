@@ -253,18 +253,16 @@ export default function MosquePrayerTimesPage() {
       } catch { /* fall through */ }
     }
 
-    // Try live sync from mosque website/Mawaqit
+    // Fetch from edge function (Mawaqit first, Aladhan fallback — all server-side)
     try {
-          const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
-            body: {
-              mosqueName: mosque.name,
-              mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
-              websiteUrl: mosque.websiteUrl,
-              latitude: mosque.latitude,
-              longitude: mosque.longitude,
-              ...getCalcSettings(),
-            },
-          });
+      const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
+        body: {
+          mosqueName: mosque.name,
+          latitude: mosque.latitude,
+          longitude: mosque.longitude,
+          ...getCalcSettings(),
+        },
+      });
 
       if (!error && liveData?.success && liveData?.times) {
         const liveTimes: PrayerTimesMap = {
@@ -274,43 +272,26 @@ export default function MosquePrayerTimesPage() {
           asr: liveData.times.asr || '',
           maghrib: liveData.times.maghrib || '',
           isha: liveData.times.isha || '',
-          jumuah: '',
+          jumuah: liveData.jumua || '',
         };
         setBaseTimes(liveTimes);
         const adjustedTimes = applyAllDiffs(liveTimes, diffs);
         setTimes(adjustedTimes);
-        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : liveData.source === 'calculated' ? 'calculated' : 'website'));
-        // Save to shared cache so Index page reads the same times
+        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source as any) || 'calculated');
+        // Cache for Index page
         const dateKey = today.replace(/-/g, '');
         const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
         try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: liveTimes, source: liveData.source })); } catch {}
+        mosque.hasAutoSync = liveData.source === 'mawaqit';
+        if (liveData.source === 'mawaqit') toast.success(`تم سحب أوقات ${mosque.name} من Mawaqit ✅`);
         setTimesLoading(false);
-        mosque.hasAutoSync = true;
-        toast.success(`تم سحب أوقات ${mosque.name} تلقائياً ✅`);
         return;
       }
-    } catch { /* fall through */ }
+    } catch {}
 
-    // Fallback: Aladhan API using USER's coordinates for consistency
-    const calcSettings = getCalcSettings();
-    const fallbackLat = calcSettings.latitude || mosque.latitude;
-    const fallbackLon = calcSettings.longitude || mosque.longitude;
-    const result = await fetchAladhanTimes(fallbackLat, fallbackLon);
-    if (result) {
-      setBaseTimes(result);
-      const adjustedTimes = applyAllDiffs(result, diffs);
-      setTimes(adjustedTimes);
-      setTimesSource(hasDiffs(diffs) ? 'adjusted' : 'api');
-      // Save to shared cache
-      const dateKey = today.replace(/-/g, '');
-      const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
-      try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: result, source: 'api' })); } catch {}
-      mosque.hasAutoSync = false;
-    } else {
-      setBaseTimes(emptyTimes);
-      setTimes(emptyTimes);
-      setTimesSource('api');
-    }
+    setBaseTimes(emptyTimes);
+    setTimes(emptyTimes);
+    setTimesSource('calculated');
     setTimesLoading(false);
   };
 
