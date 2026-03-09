@@ -73,23 +73,30 @@ export function AdBanner({ position }: { position: string }) {
     let mounted = true;
     setStatus('loading');
 
-    supabase
-      .from('ad_slots')
-      .select('*')
-      .eq('position', position)
-      .eq('is_active', true)
-      .limit(1)
-      .single()
-      .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('ad_slots')
+          .select('*')
+          .eq('position', position)
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+
         if (!mounted) return;
         setAd(data ? (data as AdSlot) : null);
         setStatus('loaded');
-      })
-      .catch(() => {
+      } catch {
         if (!mounted) return;
         setAd(null);
         setStatus('loaded');
-      });
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [position]);
 
     return () => {
       mounted = false;
