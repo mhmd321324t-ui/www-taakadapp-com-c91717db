@@ -3,6 +3,7 @@ import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
+import { useSavedMosqueTimes } from '@/hooks/useSavedMosqueTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
 import { useAutoTheme } from '@/hooks/useAutoTheme';
 import OccasionAthanAlert from '@/components/OccasionAthanAlert';
