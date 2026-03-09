@@ -251,7 +251,7 @@ export default function MosquePrayerTimesPage() {
         setBaseTimes(liveTimes);
         const adjustedTimes = applyAllDiffs(liveTimes, diffs);
         setTimes(adjustedTimes);
-        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : 'website'));
+        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : liveData.source === 'calculated' ? 'calculated' : 'website'));
         setTimesLoading(false);
         mosque.hasAutoSync = true;
         toast.success(`تم سحب أوقات ${mosque.name} تلقائياً ✅`);
