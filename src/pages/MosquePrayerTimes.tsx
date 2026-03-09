@@ -136,6 +136,52 @@ export default function MosquePrayerTimesPage() {
     supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
   }, []);
 
+  // Countdown timer for next prayer
+  useEffect(() => {
+    if (!selectedMosque || !times.fajr) return;
+    const tick = () => {
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const nowSec = nowMin * 60 + now.getSeconds();
+
+      for (const key of COUNTDOWN_KEYS) {
+        const t = times[key];
+        if (!t) continue;
+        const [h, m] = t.split(':').map(Number);
+        const prayerSec = h * 60 * 60 + m * 60;
+        if (prayerSec > nowSec) {
+          const diff = prayerSec - nowSec;
+          const hh = Math.floor(diff / 3600);
+          const mm = Math.floor((diff % 3600) / 60);
+          const ss = diff % 60;
+          setCountdown({
+            key,
+            label: PRAYER_LABELS[key],
+            remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
+          });
+          return;
+        }
+      }
+      // All prayers passed — next is tomorrow's fajr
+      if (times.fajr) {
+        const [h, m] = times.fajr.split(':').map(Number);
+        const fajrSec = h * 60 * 60 + m * 60;
+        const diff = (24 * 3600 - nowSec) + fajrSec;
+        const hh = Math.floor(diff / 3600);
+        const mm = Math.floor((diff % 3600) / 60);
+        const ss = diff % 60;
+        setCountdown({
+          key: 'fajr',
+          label: PRAYER_LABELS.fajr,
+          remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
+        });
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [selectedMosque, times]);
+
   // Load saved mosque
   useEffect(() => {
     const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
