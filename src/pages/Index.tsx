@@ -217,9 +217,9 @@ export default function Index() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15, type: 'spring', damping: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
             className="rounded-3xl bg-card border border-border/50 p-5 flex items-center justify-center shadow-elevated"
           >
             <div className="relative">
