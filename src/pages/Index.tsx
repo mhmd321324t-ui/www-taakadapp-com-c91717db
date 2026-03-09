@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import DuaOfDayDrawer from '@/components/DuaOfDayDrawer';
+import { dailyDuas } from '@/data/dhikrDetails';
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useAuth } from '@/hooks/useAuth';
@@ -118,8 +120,12 @@ export default function Index() {
   const completedGoals = prayersDone + tasbeehDone;
   const overallPercent = Math.round((completedGoals / totalGoals) * 100);
 
+  const [duaDrawerOpen, setDuaDrawerOpen] = useState(false);
+  const todayDua = dailyDuas[Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) % dailyDuas.length];
+
   return (
     <div className="min-h-screen pb-24" dir="rtl">
+      <DuaOfDayDrawer open={duaDrawerOpen} onOpenChange={setDuaDrawerOpen} />
       {/* Full-screen Athan Alert */}
       {alertPrayer && (
         <OccasionAthanAlert
@@ -299,23 +305,28 @@ export default function Index() {
       {/* ===== RAMADAN BAR ===== */}
       {ramadanActive && (
         <div className="px-4 mb-5">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden"
-          >
-            <div className="absolute inset-0 islamic-pattern opacity-20" />
-            <div className="text-white text-sm relative z-10">
-              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
-              <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
-            </div>
-            <span className="text-3xl relative z-10">🌙</span>
-            <div className="text-white text-sm text-left relative z-10">
-              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
-              <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
-            </div>
-          </motion.div>
+          <Link to="/ramadan-challenge">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-transform"
+            >
+              <div className="absolute inset-0 islamic-pattern opacity-20" />
+              <div className="text-white text-sm relative z-10">
+                <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
+                <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
+              </div>
+              <div className="text-center relative z-10">
+                <span className="text-3xl">🌙</span>
+                <p className="text-white/70 text-[10px] mt-1">تحدي رمضان</p>
+              </div>
+              <div className="text-white text-sm text-left relative z-10">
+                <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
+                <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
+              </div>
+            </motion.div>
+          </Link>
         </div>
       )}
 
@@ -413,28 +424,25 @@ export default function Index() {
       {/* ===== QURAN PLAYER ===== */}
       <QuranPlayer />
 
-      {/* ===== DUA OF THE DAY ===== */}
       <div className="px-4 mb-5">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden"
+          onClick={() => setDuaDrawerOpen(true)}
+          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary mb-3">
             دعاء اليوم
           </span>
-          <p className="text-sm font-bold text-foreground mb-3">قل هذه الكلمات عند الشدة</p>
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4">
-            اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا
+          <p className="text-sm font-bold text-foreground mb-3">{todayDua.subtitle}</p>
+          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4 line-clamp-2">
+            {todayDua.arabic}
           </p>
-          <Link
-            to="/duas"
-            className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
-          >
+          <span className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-muted/50">
             اقرأ مع الترجمة
-          </Link>
+          </span>
         </motion.div>
       </div>
 
@@ -483,7 +491,7 @@ export default function Index() {
           <p className="text-sm font-bold text-foreground mb-1">ابدأ تلاوة القرآن يوميًا</p>
           <p className="text-xs text-muted-foreground mb-4">حدّد وتيرتك، احصل على تذكيرات يومية وتابع تقدمك</p>
           <Link
-            to="/quran"
+            to="/quran-goal"
             className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
           >
             حدّد هدف القرآن

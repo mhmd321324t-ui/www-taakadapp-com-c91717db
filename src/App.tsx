@@ -28,6 +28,9 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Account = lazy(() => import("./pages/Account"));
 const DailyDuas = lazy(() => import("./pages/DailyDuas"));
 const MosquePrayerTimes = lazy(() => import("./pages/MosquePrayerTimes"));
+const RamadanChallenge = lazy(() => import("./pages/RamadanChallenge"));
+const QuranGoal = lazy(() => import("./pages/QuranGoal"));
+const DhikrSettings = lazy(() => import("./pages/DhikrSettings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -81,6 +84,9 @@ const App = () => {
                       <Route path="/install" element={<Install />} />
                       <Route path="/daily-duas" element={<DailyDuas />} />
                       <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                      <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                      <Route path="/quran-goal" element={<QuranGoal />} />
+                      <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
