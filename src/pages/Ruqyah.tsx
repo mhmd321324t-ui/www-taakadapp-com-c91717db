@@ -156,8 +156,7 @@ export default function Ruqyah() {
       <div className="px-5 pt-4">
         <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4 mb-5">
           <p className="text-xs text-muted-foreground leading-relaxed text-center">
-            ⚠️ الرقية الشرعية مأخوذة من القرآن الكريم والسنة النبوية الشريفة.
-            هذا القسم للاستماع والتحصين وليس بديلاً عن العلاج الطبي.
+            {t('ruqyahDisclaimer')}
           </p>
         </div>
 
