@@ -32,9 +32,29 @@ function to12Hour(time24: string): string {
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function applyTimeDiff(time: string, diffMinutes: number): string {
+  if (!time || diffMinutes === 0) return time;
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + diffMinutes;
+  const newH = Math.floor(((total % 1440) + 1440) % 1440 / 60);
+  const newM = ((total % 60) + 60) % 60;
+  return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+}
+
 function makePrayerTime(key: string, time24: string, is12h: boolean): PrayerTime {
   const fmt = (t: string) => (!t ? '' : is12h ? to12Hour(t) : t);
   return { name: key, time24, time: fmt(time24), key };
+}
+
+function applyDiffsToTimes(times: Record<string, string>, diffs: Record<string, number>): Record<string, string> {
+  return {
+    fajr: applyTimeDiff(times.fajr || '', diffs.fajr_diff || 0),
+    sunrise: applyTimeDiff(times.sunrise || '', diffs.sunrise_diff || 0),
+    dhuhr: applyTimeDiff(times.dhuhr || '', diffs.dhuhr_diff || 0),
+    asr: applyTimeDiff(times.asr || '', diffs.asr_diff || 0),
+    maghrib: applyTimeDiff(times.maghrib || '', diffs.maghrib_diff || 0),
+    isha: applyTimeDiff(times.isha || '', diffs.isha_diff || 0),
+  };
 }
 
 function timesMapToPrayers(times: Record<string, string>, is12h: boolean): PrayerTime[] {
