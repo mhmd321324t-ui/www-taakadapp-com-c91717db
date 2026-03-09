@@ -249,7 +249,7 @@ export default function Ruqyah() {
                 ) : tracks.length === 0 ? (
                   <div className="text-center py-16">
                     <span className="text-5xl mb-4 block">🕌</span>
-                    <p className="text-sm text-muted-foreground">لا توجد رقيات في هذا القسم بعد</p>
+                    <p className="text-sm text-muted-foreground">{t('noRuqyahYet')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
