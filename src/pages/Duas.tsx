@@ -289,11 +289,11 @@ export default function Duas() {
         >
           {showSearch && searchQuery ? (
             <div className="px-5 pt-2 space-y-3">
-              <p className="text-xs text-muted-foreground">{searchResults.length} نتيجة</p>
+              <p className="text-xs text-muted-foreground">{searchResults.length} {t('resultCount')}</p>
               {searchResults.length === 0 ? (
                 <div className="text-center py-12">
                   <Search className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">لا توجد نتائج</p>
+                  <p className="text-sm text-muted-foreground">{t('noResultsFound')}</p>
                 </div>
               ) : searchResults.map((dua, j) => renderDuaCard(dua, j))}
             </div>
