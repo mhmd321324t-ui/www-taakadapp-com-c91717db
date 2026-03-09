@@ -214,7 +214,7 @@ export default function Duas() {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <span className="font-medium text-foreground block">{cat.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{subCount} أقسام</span>
+                  <span className="text-[10px] text-muted-foreground">{subCount} {t('sectionsLabel')}</span>
                 </div>
                 {cat.useEmoji ? (
                   <span className="text-2xl">{cat.icon}</span>
