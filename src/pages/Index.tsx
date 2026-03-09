@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import DuaOfDayDrawer from '@/components/DuaOfDayDrawer';
+import { dailyDuas } from '@/data/dhikrDetails';
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { useAuth } from '@/hooks/useAuth';
