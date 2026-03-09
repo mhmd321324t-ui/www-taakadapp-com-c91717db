@@ -67,10 +67,13 @@ export function preloadAllAthans() {
 }
 
 function createAndPlayAudio(url: string): HTMLAudioElement {
-  // Create a fresh audio element each time for reliable playback
-  const audio = new Audio(url);
+  // Create audio element synchronously in user gesture context
+  const audio = new Audio();
   audio.volume = getSavedVolume();
   audio.preload = 'auto';
+  
+  // Unlock audio on mobile by playing immediately (empty src is fine)
+  audio.play().catch(() => {});
 
   audio.onerror = (e) => {
     console.warn('Athan audio failed:', url, e);
@@ -80,6 +83,10 @@ function createAndPlayAudio(url: string): HTMLAudioElement {
     if (currentAudio === audio) currentAudio = null;
   };
 
+  // Set src after unlock attempt, then play
+  audio.src = url;
+  audio.load();
+  
   const playPromise = audio.play();
   if (playPromise) {
     playPromise.catch(err => {
@@ -162,11 +169,12 @@ function playBeep() {
 // Preload selected athan on module load
 preloadSelectedAthan(true);
 
+// Only preload all athans when user opens settings, not on startup
 if (typeof window !== 'undefined') {
-  const warmAll = () => preloadAllAthans();
+  const warmSelected = () => preloadSelectedAthan(true);
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(warmAll, { timeout: 2000 });
+    (window as any).requestIdleCallback(warmSelected, { timeout: 3000 });
   } else {
-    globalThis.setTimeout(warmAll, 1200);
+    globalThis.setTimeout(warmSelected, 2000);
   }
 }
