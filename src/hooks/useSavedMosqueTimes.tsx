@@ -8,6 +8,7 @@ interface SavedMosqueData {
   mosqueName: string | null;
   prayers: PrayerTime[] | null;
   loading: boolean;
+  unlinkMosque: () => void;
 }
 
 function detectIs12Hour(): boolean {
