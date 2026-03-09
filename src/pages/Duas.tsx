@@ -62,7 +62,7 @@ const getOccasionalCategories = (t: (k: string) => string): CatItem[] => [
   { icon: '🪧', label: t('catGuidance'), dataKey: 'guidance', useEmoji: true },
 ];
 
-const allCategories = [...dailyCategories, ...adhkarCategories, ...moreCategories, ...occasionalCategories];
+const getAllCategories = (t: (k: string) => string) => [...getDailyCategories(t), ...getAdhkarCategories(t), ...getMoreCategories(t), ...getOccasionalCategories(t)];
 
 type ViewMode = 'categories' | 'subCategories' | 'duas';
 
