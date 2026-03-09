@@ -1,9 +1,10 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
-import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin } from 'lucide-react';
+import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ const prayerIcons: Record<string, React.ReactNode> = {
 
 export default function PrayerTimes() {
   const { t } = useLocale();
+  const navigate = useNavigate();
   const location = useGeoLocation();
   const { prayers, hijriDate, loading } = usePrayerTimes(
     location.latitude,
@@ -134,6 +136,22 @@ export default function PrayerTimes() {
           </div>
         </div>
       )}
+
+      {/* Mosque times link */}
+      <div className="px-5 mb-5">
+        <button
+          onClick={() => navigate('/mosque-times')}
+          className="w-full rounded-2xl border border-border/50 bg-card p-4 shadow-elevated flex items-center gap-3 transition-all active:scale-[0.98] hover:border-primary/30"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Building2 className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 text-right">
+            <p className="text-sm font-bold text-foreground">أوقات المساجد القريبة</p>
+            <p className="text-xs text-muted-foreground">اختر مسجدك وأدخل أوقات الصلاة يدوياً</p>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
