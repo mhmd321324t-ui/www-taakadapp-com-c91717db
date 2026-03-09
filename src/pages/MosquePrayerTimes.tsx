@@ -56,6 +56,7 @@ const PRAYER_LABELS: Record<string, string> = {
   asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء', jumuah: 'الجمعة',
 };
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
+const COUNTDOWN_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 const SAVED_MOSQUE_KEY = 'selected_mosque';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
 const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
