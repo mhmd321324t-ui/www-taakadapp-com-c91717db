@@ -124,7 +124,7 @@ export default function MosquePrayerTimesPage() {
   const [editDiffs, setEditDiffs] = useState<TimeDiffs>(emptyDiffs);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [timesSource, setTimesSource] = useState<'api' | 'manual' | 'mawaqit' | 'website' | 'adjusted'>('api');
+  const [timesSource, setTimesSource] = useState<'api' | 'manual' | 'mawaqit' | 'website' | 'adjusted' | 'calculated'>('api');
   const [textSearch, setTextSearch] = useState('');
   const [textSearching, setTextSearching] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<string | null>(null);
@@ -251,7 +251,7 @@ export default function MosquePrayerTimesPage() {
         setBaseTimes(liveTimes);
         const adjustedTimes = applyAllDiffs(liveTimes, diffs);
         setTimes(adjustedTimes);
-        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : 'website'));
+        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : liveData.source === 'calculated' ? 'calculated' : 'website'));
         setTimesLoading(false);
         mosque.hasAutoSync = true;
         toast.success(`تم سحب أوقات ${mosque.name} تلقائياً ✅`);
@@ -733,7 +733,8 @@ export default function MosquePrayerTimesPage() {
                 {timesSource === 'manual' && 'أوقات يدوية محفوظة'}
                 {timesSource === 'mawaqit' && '⚡ أوقات مباشرة من Mawaqit'}
                 {timesSource === 'website' && '🌐 أوقات من موقع المسجد'}
-                {timesSource === 'api' && 'أوقات فلكية حسب إحداثيات المسجد'}
+                {timesSource === 'api' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
+                {timesSource === 'calculated' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
                 {timesSource === 'adjusted' && '⏱️ أوقات معدلة (تحديث يومي تلقائي)'}
                 {(timesSource === 'manual' || timesSource === 'adjusted') && (
                   <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
