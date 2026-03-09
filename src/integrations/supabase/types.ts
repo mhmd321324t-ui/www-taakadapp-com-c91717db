@@ -92,6 +92,39 @@ export type Database = {
         }
         Relationships: []
       }
+      mosques: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          osm_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          osm_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          osm_id?: string | null
+        }
+        Relationships: []
+      }
       prayer_tracking: {
         Row: {
           created_at: string
@@ -327,6 +360,59 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mosque_times: {
+        Row: {
+          asr: string | null
+          date: string
+          dhuhr: string | null
+          fajr: string | null
+          id: string
+          isha: string | null
+          jumuah: string | null
+          maghrib: string | null
+          mosque_id: string
+          sunrise: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asr?: string | null
+          date?: string
+          dhuhr?: string | null
+          fajr?: string | null
+          id?: string
+          isha?: string | null
+          jumuah?: string | null
+          maghrib?: string | null
+          mosque_id: string
+          sunrise?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asr?: string | null
+          date?: string
+          dhuhr?: string | null
+          fajr?: string | null
+          id?: string
+          isha?: string | null
+          jumuah?: string | null
+          maghrib?: string | null
+          mosque_id?: string
+          sunrise?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_mosque_times_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -344,6 +430,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_selected_mosque: {
+        Row: {
+          created_at: string
+          id: string
+          mosque_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mosque_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mosque_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_selected_mosque_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
