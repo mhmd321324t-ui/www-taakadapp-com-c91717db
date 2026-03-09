@@ -32,6 +32,7 @@ const RamadanChallenge = lazy(() => import("./pages/RamadanChallenge"));
 const QuranGoal = lazy(() => import("./pages/QuranGoal"));
 const DhikrSettings = lazy(() => import("./pages/DhikrSettings"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const Ruqyah = lazy(() => import("./pages/Ruqyah"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -89,6 +90,7 @@ const App = () => {
                       <Route path="/quran-goal" element={<QuranGoal />} />
                       <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="/notifications" element={<NotificationSettings />} />
+                      <Route path="/ruqyah" element={<Ruqyah />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
