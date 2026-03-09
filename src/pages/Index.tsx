@@ -341,8 +341,8 @@ export default function Index() {
               <Building2 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">أوقات المساجد</p>
-              <p className="text-[10px] text-muted-foreground">اختر مسجدك القريب</p>
+              <p className="text-sm font-bold text-foreground">{t('mosqueTimes')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('chooseNearbyMosque')}</p>
             </div>
           </div>
           <ChevronLeft className="h-4 w-4 text-muted-foreground" />
