@@ -190,7 +190,7 @@ export default function Index() {
           >
             متابعة الصلاة اليوم
           </Link>
-        </motion.div>
+        </div>
       </div>
 
       {/* Next prayer + countdown */}
