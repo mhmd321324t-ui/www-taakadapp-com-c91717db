@@ -323,7 +323,7 @@ export default function Index() {
             <ChevronLeft className="h-3 w-3" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {prayers.map((prayer, i) => {
             const isNext = nextPrayer?.key === prayer.key;
             return (
