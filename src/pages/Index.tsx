@@ -318,7 +318,7 @@ export default function Index() {
 
       {/* Quick Access */}
       <div className="px-4 mb-5">
-        <h2 className="text-sm font-bold text-foreground mb-3">{t('quickAccess')}</h2>
+        <SectionHeader icon={Zap} title={t('quickAccess')} />
         <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
           {quickAccessItems.map((item, i) => (
             <motion.div
