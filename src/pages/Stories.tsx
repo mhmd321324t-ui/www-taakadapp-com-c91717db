@@ -631,7 +631,7 @@ export default function Stories() {
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
                   >
                     <option value="">اختر الفئة</option>
-                    {CATEGORIES.map(c => (
+                    {getCATEGORIES(t).map(c => (
                       <option key={c.key} value={c.key}>{c.label}</option>
                     ))}
                   </select>
