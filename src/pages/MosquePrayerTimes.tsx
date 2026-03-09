@@ -127,6 +127,7 @@ export default function MosquePrayerTimesPage() {
   const [textSearch, setTextSearch] = useState('');
   const [textSearching, setTextSearching] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<string | null>(null);
+  const [mosqueFilter, setMosqueFilter] = useState<'all' | 'auto' | 'manual'>('all');
   const autoSearched = useRef(false);
 
   useEffect(() => {
