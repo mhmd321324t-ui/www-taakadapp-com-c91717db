@@ -416,6 +416,9 @@ export default function Index() {
 
       <AdBanner position="home-middle" />
 
+      {/* ===== VIDEO CONTENT CAROUSEL ===== */}
+      <VideoContentCarousel />
+
       {/* ===== DAILY GOALS (interactive) ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
 
