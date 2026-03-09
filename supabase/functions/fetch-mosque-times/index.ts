@@ -32,48 +32,48 @@ function namesMatch(requested: string, found: string): boolean {
   return wordsA.filter(w => wordsB.some(wb => wb.includes(w) || w.includes(wb))).length >= 1;
 }
 
-// ─── 1. Mawaqit API search ───
-async function fetchFromMawaqitAPI(mosqueName: string, lat?: number, lon?: number): Promise<{ times: MosqueTimes; source: string } | null> {
-  try {
-    let url = `https://mawaqit.net/api/2.0/mosque/search?word=${encodeURIComponent(mosqueName)}`;
-    if (lat && lon) url += `&lat=${lat}&lon=${lon}`;
-    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } });
-    if (!res.ok) return null;
-    const mosques = await res.json();
-    if (!Array.isArray(mosques) || !mosques.length) return null;
-    const mosque = mosques.find((m: any) => namesMatch(mosqueName, m.name || ''));
-    if (!mosque?.times || mosque.times.length < 5) return null;
-    const times: MosqueTimes = {
-      fajr: mosque.times[0] || '', sunrise: mosque.times[1] || '',
-      dhuhr: mosque.times[2] || '', asr: mosque.times[3] || '',
-      maghrib: mosque.times[4] || '', isha: mosque.times[5] || '',
-    };
-    console.log(`Mawaqit matched: ${mosque.name}`);
-    return { times, source: 'mawaqit' };
-  } catch { return null; }
+// Extract search keywords from mosque name for broader Mawaqit search
+function getSearchVariants(mosqueName: string): string[] {
+  const variants: string[] = [mosqueName];
+  const cleaned = mosqueName
+    .replace(/\b(moschee|mosque|masjid|camii|cami|cmii|cmi|e\.v\.|e\.V\.|مسجد|جامع)\b/gi, '')
+    .replace(/\s+/g, ' ').trim();
+  if (cleaned && cleaned !== mosqueName) variants.push(cleaned);
+  // Individual significant words (>3 chars)
+  const words = cleaned.split(/\s+/).filter(w => w.length > 3);
+  for (const w of words) {
+    if (!variants.includes(w)) variants.push(w);
+  }
+  return variants.slice(0, 4); // max 4 attempts
 }
 
-// ─── 2. Mawaqit by coordinates (nearby mosques) ───
-async function fetchMawaqitByCoords(lat: number, lon: number): Promise<{ times: MosqueTimes; source: string; mosqueName?: string } | null> {
-  try {
-    const url = `https://mawaqit.net/api/2.0/mosque/search?lat=${lat}&lon=${lon}`;
-    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } });
-    if (!res.ok) return null;
-    const mosques = await res.json();
-    if (!Array.isArray(mosques) || !mosques.length) return null;
-    const mosque = mosques[0]; // nearest
-    if (!mosque?.times || mosque.times.length < 5) return null;
-    const times: MosqueTimes = {
-      fajr: mosque.times[0] || '', sunrise: mosque.times[1] || '',
-      dhuhr: mosque.times[2] || '', asr: mosque.times[3] || '',
-      maghrib: mosque.times[4] || '', isha: mosque.times[5] || '',
-    };
-    console.log(`Mawaqit nearest: ${mosque.name}`);
-    return { times, source: 'mawaqit', mosqueName: mosque.name };
-  } catch { return null; }
+// ─── 1. Mawaqit API search (with multiple keyword attempts) ───
+async function fetchFromMawaqitAPI(mosqueName: string, lat?: number, lon?: number): Promise<{ times: MosqueTimes; source: string; matchedName?: string } | null> {
+  const variants = getSearchVariants(mosqueName);
+  for (const searchWord of variants) {
+    try {
+      let url = `https://mawaqit.net/api/2.0/mosque/search?word=${encodeURIComponent(searchWord)}`;
+      if (lat && lon) url += `&lat=${lat}&lon=${lon}`;
+      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" } });
+      if (!res.ok) continue;
+      const mosques = await res.json();
+      if (!Array.isArray(mosques) || !mosques.length) continue;
+      // Match against the ORIGINAL name, not the search variant
+      const mosque = mosques.find((m: any) => namesMatch(mosqueName, m.name || ''));
+      if (!mosque?.times || mosque.times.length < 5) continue;
+      const times: MosqueTimes = {
+        fajr: mosque.times[0] || '', sunrise: mosque.times[1] || '',
+        dhuhr: mosque.times[2] || '', asr: mosque.times[3] || '',
+        maghrib: mosque.times[4] || '', isha: mosque.times[5] || '',
+      };
+      console.log(`Mawaqit matched: ${mosque.name} (search: "${searchWord}")`);
+      return { times, source: 'mawaqit', matchedName: mosque.name };
+    } catch { continue; }
+  }
+  return null;
 }
 
-// ─── 3. Mawaqit slug scrape ───
+// ─── 2. Mawaqit slug scrape ───
 async function fetchByMawaqitSlug(slug: string): Promise<{ times: MosqueTimes; source: string } | null> {
   try {
     const res = await fetch(`https://mawaqit.net/en/m/${slug}`, { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -96,14 +96,14 @@ async function fetchByMawaqitSlug(slug: string): Promise<{ times: MosqueTimes; s
   } catch { return null; }
 }
 
-// ─── 4. Islamic Finder API (global coverage) ───
-async function fetchFromIslamicFinder(lat: number, lon: number): Promise<{ times: MosqueTimes; source: string } | null> {
+// ─── 3. Aladhan API fallback (calculated, NOT mosque-specific) ───
+async function fetchCalculatedTimes(lat: number, lon: number, method: number = 3): Promise<{ times: MosqueTimes; source: string } | null> {
   try {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
-    const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lon}&method=3`;
+    const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lon}&method=${method}`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const json = await res.json();
@@ -115,37 +115,11 @@ async function fetchFromIslamicFinder(lat: number, lon: number): Promise<{ times
       dhuhr: clean(t.Dhuhr), asr: clean(t.Asr),
       maghrib: clean(t.Maghrib), isha: clean(t.Isha),
     };
-    return { times, source: 'aladhan' };
+    return { times, source: 'calculated' };
   } catch { return null; }
 }
 
-// ─── 5. Turkey Diyanet API ───
-async function fetchFromDiyanet(lat: number, lon: number): Promise<{ times: MosqueTimes; source: string } | null> {
-  try {
-    // Use Diyanet's public endpoint for prayer times by coordinates
-    const url = `https://namazvakitleri.diyanet.gov.tr/tr-TR`;
-    // Diyanet doesn't have a clean public JSON API, so we use Aladhan with Turkish method (13 = Diyanet)
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-    const apiUrl = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lon}&method=13`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) return null;
-    const json = await res.json();
-    const t = json?.data?.timings;
-    if (!t) return null;
-    const clean = (s: string) => s?.replace(/\s*\(.*\)$/, '').trim() || '';
-    const times: MosqueTimes = {
-      fajr: clean(t.Fajr), sunrise: clean(t.Sunrise),
-      dhuhr: clean(t.Dhuhr), asr: clean(t.Asr),
-      maghrib: clean(t.Maghrib), isha: clean(t.Isha),
-    };
-    return { times, source: 'diyanet' };
-  } catch { return null; }
-}
-
-// ─── 6. AI extraction from any website ───
+// ─── 4. AI extraction from any website ───
 async function extractTimesWithAI(websiteUrl: string): Promise<{ times: MosqueTimes; source: string } | null> {
   const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
   if (!GEMINI_API_KEY) return null;
@@ -192,10 +166,9 @@ ${html}`;
 
 // ─── Country detection for method selection ───
 function getCountryFromCoords(lat: number, lon: number): string {
-  // Rough region detection for choosing best API source
-  if (lat >= 36 && lat <= 42 && lon >= 26 && lon <= 45) return 'TR'; // Turkey
-  if (lat >= 47 && lat <= 55 && lon >= 5 && lon <= 15) return 'DE'; // Germany
-  if (lat >= 15 && lat <= 32 && lon >= 32 && lon <= 60) return 'GULF'; // Gulf/Arabia
+  if (lat >= 36 && lat <= 42 && lon >= 26 && lon <= 45) return 'TR';
+  if (lat >= 47 && lat <= 55 && lon >= 5 && lon <= 15) return 'DE';
+  if (lat >= 15 && lat <= 32 && lon >= 32 && lon <= 60) return 'GULF';
   return 'OTHER';
 }
 
@@ -208,47 +181,37 @@ serve(async (req) => {
     const { mosqueName, mosqueCity, websiteUrl, mawaqitSlug, latitude, longitude, countryCode } = await req.json();
     console.log("fetch-mosque-times:", { mosqueName, mosqueCity, mawaqitSlug, latitude, longitude, countryCode });
 
-    let result: { times: MosqueTimes; source: string; mosqueName?: string } | null = null;
+    let result: { times: MosqueTimes; source: string; matchedName?: string } | null = null;
 
     // Priority 1: Direct Mawaqit slug
     if (!result && mawaqitSlug) {
       result = await fetchByMawaqitSlug(mawaqitSlug);
     }
 
-    // Priority 2: Mawaqit API search by name + coordinates
+    // Priority 2: Mawaqit API search by name (with multiple keyword variants)
     if (!result && mosqueName) {
       result = await fetchFromMawaqitAPI(mosqueName, latitude, longitude);
     }
 
-    // Priority 3: Mawaqit by coordinates (nearest mosque)
-    if (!result && latitude && longitude) {
-      result = await fetchMawaqitByCoords(latitude, longitude);
-    }
-
-    // Priority 4: Website URL → check if Mawaqit, then AI scrape
+    // Priority 3: Website URL → check if Mawaqit, then AI scrape
     if (!result && websiteUrl) {
       const mawaqitMatch = websiteUrl.match(/mawaqit\.net\/\w+\/m\/([^/?]+)/);
       if (mawaqitMatch) result = await fetchByMawaqitSlug(mawaqitMatch[1]);
       if (!result) result = await extractTimesWithAI(websiteUrl);
     }
 
-    // Priority 5: Turkey-specific (Diyanet method via Aladhan)
+    // Priority 4: Aladhan calculated times (NOT mosque-specific)
+    // Uses Diyanet method (13) for Turkey, standard method (3) elsewhere
     if (!result && latitude && longitude) {
       const region = countryCode?.toUpperCase() || getCountryFromCoords(latitude, longitude);
-      if (region === 'TR') {
-        result = await fetchFromDiyanet(latitude, longitude);
-      }
-    }
-
-    // Priority 6: Aladhan API fallback (works globally)
-    if (!result && latitude && longitude) {
-      result = await fetchFromIslamicFinder(latitude, longitude);
+      const method = region === 'TR' ? 13 : 3;
+      result = await fetchCalculatedTimes(latitude, longitude, method);
     }
 
     return new Response(JSON.stringify({
       times: result?.times || null,
       source: result?.source || 'none',
-      mosqueName: result?.mosqueName || null,
+      matchedName: result?.matchedName || null,
       success: !!result,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
