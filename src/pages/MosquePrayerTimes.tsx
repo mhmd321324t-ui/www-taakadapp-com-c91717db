@@ -357,7 +357,8 @@ export default function MosquePrayerTimesPage() {
           longitude: mosque.longitude,
         },
       });
-      const hasSync = !error && data?.success && data?.times;
+      const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
+      const hasSync = !error && data?.success && !!data?.times && isRealSource;
       mosque.hasAutoSync = hasSync;
       setMosques(prev => prev.map(m => m.osm_id === mosque.osm_id ? { ...m, hasAutoSync: hasSync } : m));
       return hasSync;
@@ -388,7 +389,8 @@ export default function MosquePrayerTimesPage() {
                 longitude: mosque.longitude,
               },
             });
-            return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && !!data?.times };
+            const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
+            return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && !!data?.times && isRealSource };
           } catch {
             return { osm_id: mosque.osm_id, hasAutoSync: false };
           }
