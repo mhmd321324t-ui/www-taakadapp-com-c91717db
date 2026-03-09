@@ -8,8 +8,8 @@ import {
   Heart, MessageCircle, Send, ArrowRight, Plus, X,
   BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen
 } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
