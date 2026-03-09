@@ -30,6 +30,7 @@ const Account = lazy(() => import("./pages/Account"));
 const DailyDuas = lazy(() => import("./pages/DailyDuas"));
 const MosquePrayerTimes = lazy(() => import("./pages/MosquePrayerTimes"));
 const RamadanChallenge = lazy(() => import("./pages/RamadanChallenge"));
+const RamadanCalendar = lazy(() => import("./pages/RamadanCalendar"));
 const QuranGoal = lazy(() => import("./pages/QuranGoal"));
 const DhikrSettings = lazy(() => import("./pages/DhikrSettings"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
@@ -89,6 +90,7 @@ const App = () => {
                       <Route path="/daily-duas" element={<DailyDuas />} />
                       <Route path="/mosque-times" element={<MosquePrayerTimes />} />
                       <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                      <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
                       <Route path="/quran-goal" element={<QuranGoal />} />
                       <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="/notifications" element={<NotificationSettings />} />

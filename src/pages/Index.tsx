@@ -378,6 +378,19 @@ export default function Index() {
               </div>
             </div>
           </Link>
+          {/* Ramadan Calendar Link */}
+          <Link to="/ramadan-calendar" className="mt-2 block">
+            <div className="rounded-2xl bg-card border border-accent/30 p-3.5 flex items-center justify-between active:scale-[0.98] transition-transform">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-accent/15 flex items-center justify-center text-lg">📅</div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">تقويم رمضان ١٤٤٧</p>
+                  <p className="text-[10px] text-muted-foreground">أدعية يومية • ليلة القدر • السحور والإفطار</p>
+                </div>
+              </div>
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </Link>
         </div>
       )}
 
