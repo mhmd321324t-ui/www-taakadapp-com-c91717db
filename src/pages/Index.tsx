@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import DuaOfDayDrawer from '@/components/DuaOfDayDrawer';
 import { dailyDuas } from '@/data/dhikrDetails';
 import { useLocale } from '@/hooks/useLocale';
@@ -10,20 +10,21 @@ import { useAthanNotifications, requestNotificationPermission } from '@/hooks/us
 import { useAutoTheme } from '@/hooks/useAutoTheme';
 import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
-import HijriCalendar from '@/components/HijriCalendar';
 import DailyGoals from '@/components/DailyGoals';
-import SuggestedGoals from '@/components/SuggestedGoals';
 import NotificationCard from '@/components/NotificationCard';
-import VideoContentCarousel from '@/components/VideoContentCarousel';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2 } from 'lucide-react';
-import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
+
+// Lazy load below-the-fold components
+const VideoContentCarousel = lazy(() => import('@/components/VideoContentCarousel'));
+const QuranPlayer = lazy(() => import('@/components/QuranPlayer'));
+const SuggestedGoals = lazy(() => import('@/components/SuggestedGoals'));
+const HijriCalendar = lazy(() => import('@/components/HijriCalendar'));
 
 const quickAccessItems = [
   { icon: Heart, label: 'تسبيح', path: '/tasbeeh', gradient: 'from-primary/20 to-primary/5' },
@@ -151,6 +152,7 @@ export default function Index() {
           fetchPriority="high"
           width="1335"
           height="280"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-background" />
         
@@ -192,11 +194,7 @@ export default function Index() {
 
       {/* ===== NEXT PRAYER CARD (overlapping hero) ===== */}
       <div className="px-4 -mt-14 relative z-10 mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl bg-card/95 backdrop-blur-xl border border-border/50 p-5 shadow-elevated"
-        >
+        <div className="rounded-3xl bg-card/95 backdrop-blur-xl border border-border/50 p-5 shadow-elevated animate-fade-in">
           <div className="flex items-center gap-4">
             {/* Countdown circle */}
             <div className="relative shrink-0">
@@ -249,7 +247,7 @@ export default function Index() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ===== OCCASION BANNER ===== */}
@@ -309,14 +307,11 @@ export default function Index() {
         )}
         
         <div className="grid grid-cols-3 gap-2">
-          {prayers.map((prayer, i) => {
+          {prayers.map((prayer) => {
             const isNext = nextPrayer?.key === prayer.key;
             return (
-              <motion.div
+              <div
                 key={prayer.key}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
                 className={cn(
                   'rounded-2xl border p-3 text-center transition-all',
                   isNext
@@ -331,7 +326,7 @@ export default function Index() {
                 <p className={cn('text-sm font-bold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
                   {prayer.time}
                 </p>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -358,11 +353,7 @@ export default function Index() {
       {ramadanActive && (
         <div className="px-4 mb-4">
           <Link to="/ramadan-challenge">
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-transform"
-            >
+            <div className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-transform">
               <div className="absolute inset-0 islamic-pattern opacity-20" />
               <div className="text-white text-sm relative z-10">
                 <span className="text-white/50 text-xs font-medium">إفطار</span>
@@ -376,15 +367,17 @@ export default function Index() {
                 <span className="text-white/50 text-xs font-medium">الفجر</span>
                 <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
               </div>
-            </motion.div>
+            </div>
           </Link>
         </div>
       )}
 
       <AdBanner position="home-middle" />
 
-      {/* ===== VIDEO CONTENT ===== */}
-      <VideoContentCarousel />
+      {/* ===== VIDEO CONTENT (lazy) ===== */}
+      <Suspense fallback={<div className="h-40" />}>
+        <VideoContentCarousel />
+      </Suspense>
 
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
@@ -392,14 +385,14 @@ export default function Index() {
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />
 
-      {/* ===== QURAN PLAYER ===== */}
-      <QuranPlayer />
+      {/* ===== QURAN PLAYER (lazy) ===== */}
+      <Suspense fallback={<div className="h-32" />}>
+        <QuranPlayer />
+      </Suspense>
 
       {/* ===== DUA OF DAY ===== */}
       <div className="px-4 mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           onClick={() => setDuaDrawerOpen(true)}
           className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
@@ -414,11 +407,13 @@ export default function Index() {
           <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2 text-xs font-bold text-primary transition-all">
             اقرأ مع الترجمة →
           </span>
-        </motion.div>
+        </div>
       </div>
 
-      {/* ===== SUGGESTED GOALS ===== */}
-      <SuggestedGoals />
+      {/* ===== SUGGESTED GOALS (lazy) ===== */}
+      <Suspense fallback={<div className="h-24" />}>
+        <SuggestedGoals />
+      </Suspense>
 
       {/* ===== QUICK ACCESS ===== */}
       <div className="px-4 mb-4">
@@ -427,36 +422,25 @@ export default function Index() {
           <h3 className="text-sm font-bold text-foreground">وصول سريع</h3>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          {quickAccessItems.map((item, i) => (
-            <motion.div
-              key={item.path}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + i * 0.03 }}
-            >
-              <Link to={item.path} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95">
-                <div className={cn(
-                  'h-12 w-12 rounded-2xl bg-gradient-to-br flex items-center justify-center',
-                  item.gradient
-                )}>
-                  <item.icon className="h-5 w-5 text-primary" />
-                </div>
-                <span className="text-[11px] font-semibold text-foreground text-center">
-                  {item.label}
-                </span>
-              </Link>
-            </motion.div>
+          {quickAccessItems.map((item) => (
+            <Link key={item.path} to={item.path} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95">
+              <div className={cn(
+                'h-12 w-12 rounded-2xl bg-gradient-to-br flex items-center justify-center',
+                item.gradient
+              )}>
+                <item.icon className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-[11px] font-semibold text-foreground text-center">
+                {item.label}
+              </span>
+            </Link>
           ))}
         </div>
       </div>
 
       {/* ===== QURAN GOAL ===== */}
       <div className="px-4 mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden"
-        >
+        <div className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/5 to-transparent rounded-tr-full" />
           <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-[11px] font-bold text-accent-foreground mb-2">
             📖 إتمام القرآن
@@ -469,20 +453,22 @@ export default function Index() {
           >
             حدّد هدف القرآن →
           </Link>
-        </motion.div>
+        </div>
       </div>
 
-      {/* ===== HIJRI CALENDAR ===== */}
+      {/* ===== HIJRI CALENDAR (lazy) ===== */}
       <div className="px-4 mb-8">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-base">📅</span>
           <h3 className="text-sm font-bold text-foreground">التقويم الهجري</h3>
         </div>
-        <HijriCalendar
-          hijriDay={hijriDay}
-          hijriMonth={hijriMonthNumber || undefined}
-          hijriYear={hijriYear}
-        />
+        <Suspense fallback={<div className="h-48" />}>
+          <HijriCalendar
+            hijriDay={hijriDay}
+            hijriMonth={hijriMonthNumber || undefined}
+            hijriYear={hijriYear}
+          />
+        </Suspense>
       </div>
     </div>
   );

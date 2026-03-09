@@ -43,6 +43,9 @@ export default function VideoContentCarousel() {
                 alt={video.title}
                 className="w-full h-full object-cover group-active:scale-105 transition-transform"
                 loading="lazy"
+                decoding="async"
+                width="320"
+                height="180"
               />
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                 <div className="h-10 w-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">

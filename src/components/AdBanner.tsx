@@ -165,9 +165,9 @@ export function AdBanner({ position }: { position: string }) {
 
   const shouldReserveSpace = reservedHeight > 0;
 
-  // Preserve previous behavior for positions where we don't reserve space.
+  // Don't render anything if no ad is active (eliminates CLS from empty slots)
+  if (status === 'loaded' && !ad) return null;
   if (!ad && !shouldReserveSpace) return null;
-  if (!ad && status === 'loaded') return null;
 
   // Wrapper with reserved min-height to avoid late insertion shifting content below.
   const wrapperStyle = shouldReserveSpace ? ({ minHeight: reservedHeight } as React.CSSProperties) : undefined;
