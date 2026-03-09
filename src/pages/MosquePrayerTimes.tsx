@@ -981,7 +981,7 @@ export default function MosquePrayerTimesPage() {
           <p className="text-xs text-muted-foreground leading-relaxed">
             بعض المساجد لا تتوفر أوقاتها على الإنترنت. يمكنك:
           </p>
-          <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pr-4">
+          <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pe-4">
             <li>إدخال الأوقات يدوياً مرة واحدة</li>
             <li>أو ضبط فرق الدقائق عن التوقيت الفلكي (مثال: +5 للفجر)</li>
             <li>سيتم التحديث تلقائياً يومياً بناءً على إعداداتك</li>
