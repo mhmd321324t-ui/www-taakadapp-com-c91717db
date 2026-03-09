@@ -486,7 +486,7 @@ export default function QuranPlayer() {
                       ) : isPlaying ? (
                         <Pause className="h-6 w-6 text-primary-foreground" />
                       ) : (
-                        <Play className="h-6 w-6 text-primary-foreground mr-[-2px]" />
+                        <Play className="h-6 w-6 text-primary-foreground" />
                       )}
                     </button>
 
