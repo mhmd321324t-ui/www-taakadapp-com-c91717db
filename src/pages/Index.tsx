@@ -33,11 +33,15 @@ export default function Index() {
   const { t, isRTL } = useLocale();
   const { user } = useAuth();
   const location = useGeoLocation();
-  const { prayers, hijriDate, hijriDay, hijriMonthNumber, hijriYear, loading } = usePrayerTimes(
+  const { prayers: apiPrayers, hijriDate, hijriDay, hijriMonthNumber, hijriYear, loading } = usePrayerTimes(
     location.latitude,
     location.longitude,
     location.calculationMethod
   );
+  const { mosqueName, prayers: mosquePrayers } = useSavedMosqueTimes();
+  
+  // Use mosque times if available, otherwise use location-based times
+  const prayers = mosquePrayers || apiPrayers;
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
