@@ -91,6 +91,13 @@ export default function Index() {
   useAthanNotifications(prayers, notificationsEnabled, handleAthanAlert);
   useAutoTheme(prayers);
 
+  // Auto-register push subscription when notifications are enabled and location is available
+  useEffect(() => {
+    if (notificationsEnabled && location.latitude && location.longitude && !location.loading) {
+      subscribeToPush(location.latitude, location.longitude, location.calculationMethod).catch(console.error);
+    }
+  }, [notificationsEnabled, location.latitude, location.longitude, location.loading]);
+
   const toggleNotifications = async () => {
     if (!notificationsEnabled) {
       const granted = await requestNotificationPermission();
