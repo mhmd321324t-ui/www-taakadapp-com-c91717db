@@ -27,6 +27,7 @@ interface Mosque {
   address: string;
   latitude: number;
   longitude: number;
+  websiteUrl?: string;
   _dist?: number;
   hasAutoSync?: boolean;
 }
