@@ -782,6 +782,30 @@ export default function MosquePrayerTimesPage() {
           </motion.div>
         )}
 
+        {/* Filter tabs */}
+        {mosques.length > 0 && (
+          <div className="flex gap-2 mb-4 overflow-x-auto">
+            {([
+              { key: 'all' as const, label: 'الكل', count: mosques.length },
+              { key: 'auto' as const, label: '⚡ تلقائي', count: mosques.filter(m => m.hasAutoSync === true).length },
+              { key: 'manual' as const, label: '✏️ يدوي', count: mosques.filter(m => m.hasAutoSync === false).length },
+            ]).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setMosqueFilter(tab.key)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap",
+                  mosqueFilter === tab.key
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border/50 hover:border-primary/30"
+                )}
+              >
+                {tab.label} ({tab.count})
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* No mosque selected info */}
         {!selectedMosque && !loading && mosques.length > 0 && (
           <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
