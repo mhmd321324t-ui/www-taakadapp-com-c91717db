@@ -238,11 +238,24 @@ export default function MosquePrayerTimesPage() {
     if (!location.latitude || !location.longitude) { toast.error('يرجى تفعيل الموقع أولاً'); return; }
     setLoading(true);
     try {
-      // Try prefetched data first (if no text query)
       if (!query) {
-        const prefetched = getPrefetchedMosques();
-        if (prefetched && prefetched.length > 0) {
-          const sorted = prefetched
+        // First check instant cache
+        const instant = getPrefetchedMosques();
+        if (instant && instant.length > 0) {
+          const sorted = instant
+            .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
+            .filter((m: Mosque) => m._dist! <= 10)
+            .sort((a: any, b: any) => a._dist - b._dist);
+          if (sorted.length > 0) {
+            setMosques(sorted);
+            setLoading(false);
+            return;
+          }
+        }
+        // Wait for in-flight prefetch or start new one
+        const awaited = await waitForPrefetchedMosques(location.latitude!, location.longitude!);
+        if (awaited && awaited.length > 0) {
+          const sorted = awaited
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
             .filter((m: Mosque) => m._dist! <= 10)
             .sort((a: any, b: any) => a._dist - b._dist);
