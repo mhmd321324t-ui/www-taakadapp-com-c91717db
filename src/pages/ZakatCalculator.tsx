@@ -221,7 +221,7 @@ export default function ZakatCalculator() {
         {/* Currency selector */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
           <SectionHeader icon={Coins} title="العملة" subtitle="اختر عملة بلدك لحساب النصاب" className="mb-3" />
-          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">اختر عملة بلدك لحساب النصاب</p>
+          
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="rounded-2xl">
               <SelectValue placeholder={geoLoading ? 'جاري التحديد...' : 'اختر العملة'} />
