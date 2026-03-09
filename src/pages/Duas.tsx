@@ -232,8 +232,8 @@ export default function Duas() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       <PageHeader
-        title="الدُعاء والذكر"
-        subtitle="أدعية وأذكار من الكتاب والسنة"
+        title={t('duasAndDhikr')}
+        subtitle={t('duasSubtitle')}
         image="https://images.unsplash.com/photo-1447619297994-b829cc1ab44a?w=1200&q=85"
         compact
         actionsLeft={
