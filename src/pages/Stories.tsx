@@ -418,7 +418,7 @@ export default function Stories() {
                 <div className="flex items-center justify-between mb-4">
                   <Button onClick={openNewStory} size="sm" className="rounded-full gap-1">
                     <Plus className="h-3 w-3" />
-                    انشر قصة
+                    {t('publishStory')}
                   </Button>
                   <h2 className="text-lg font-bold text-foreground">
                     {getCategoryInfo(selectedCategory)?.emoji} {getCategoryInfo(selectedCategory)?.label}
