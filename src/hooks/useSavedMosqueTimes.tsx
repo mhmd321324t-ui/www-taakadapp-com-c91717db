@@ -134,7 +134,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
           if (cached.times) {
             setData({
               mosqueName: mosque.name,
-              prayers: timesMapToPrayers(cached.times, is12h),
+              prayers: timesMapToPrayers(applyDiffsToTimes(cached.times, diffs), is12h),
               loading: false,
               source: cached.source || 'website',
             });
