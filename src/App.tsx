@@ -65,6 +65,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <SEOWrapper>
                 <AppLayout>
                   <Suspense fallback={<div className="min-h-screen" />}>
