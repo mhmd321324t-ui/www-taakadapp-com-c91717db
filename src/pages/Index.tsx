@@ -10,7 +10,7 @@ import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles, Clock, Zap, Building2 } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles, Clock, Zap, Building2, Unlink } from 'lucide-react';
 import SectionHeader from '@/components/SectionHeader';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
@@ -38,7 +38,7 @@ export default function Index() {
     location.longitude,
     location.calculationMethod
   );
-  const { mosqueName, prayers: mosquePrayers, loading: mosqueLoading } = useSavedMosqueTimes();
+  const { mosqueName, prayers: mosquePrayers, loading: mosqueLoading, unlinkMosque } = useSavedMosqueTimes();
   
   // Use mosque times if available, otherwise use location-based times
   const prayers = mosquePrayers || apiPrayers;
@@ -289,10 +289,22 @@ export default function Index() {
           <div className="flex-1">
             <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
             {mosqueName && mosquePrayers && (
-              <p className="text-[10px] text-primary flex items-center gap-1 mr-7 -mt-1">
-                <Building2 className="h-3 w-3" />
-                {mosqueName}
-              </p>
+              <div className="flex items-center gap-2 mr-7 -mt-1">
+                <p className="text-[10px] text-primary flex items-center gap-1">
+                  <Building2 className="h-3 w-3" />
+                  {mosqueName}
+                </p>
+                <button
+                  onClick={() => {
+                    unlinkMosque();
+                    toast.success('تم إلغاء ربط المسجد — الأوقات تلقائية حسب موقعك الآن');
+                  }}
+                  className="flex items-center gap-0.5 text-[10px] text-destructive hover:underline"
+                >
+                  <Unlink className="h-2.5 w-2.5" />
+                  إلغاء
+                </button>
+              </div>
             )}
           </div>
           <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">

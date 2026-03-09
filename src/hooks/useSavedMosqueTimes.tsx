@@ -8,6 +8,7 @@ interface SavedMosqueData {
   mosqueName: string | null;
   prayers: PrayerTime[] | null;
   loading: boolean;
+  unlinkMosque: () => void;
 }
 
 function detectIs12Hour(): boolean {
@@ -36,7 +37,7 @@ function makePrayerTime(key: string, time24: string, is12h: boolean): PrayerTime
  * Falls back to null (so the main page uses location-based times).
  */
 export function useSavedMosqueTimes(): SavedMosqueData {
-  const [data, setData] = useState<SavedMosqueData>({ mosqueName: null, prayers: null, loading: true });
+  const [data, setData] = useState<Omit<SavedMosqueData, 'unlinkMosque'>>({ mosqueName: null, prayers: null, loading: true });
 
   useEffect(() => {
     const is12h = detectIs12Hour();
@@ -121,5 +122,17 @@ export function useSavedMosqueTimes(): SavedMosqueData {
     load();
   }, []);
 
-  return data;
+  const unlinkMosque = () => {
+    const saved = localStorage.getItem('selected_mosque');
+    if (saved) {
+      try {
+        const mosque = JSON.parse(saved);
+        if (mosque.osm_id) localStorage.removeItem(SAVED_TIMES_PREFIX + mosque.osm_id);
+      } catch { /* ignore */ }
+    }
+    localStorage.removeItem('selected_mosque');
+    setData({ mosqueName: null, prayers: null, loading: false });
+  };
+
+  return { ...data, unlinkMosque };
 }
