@@ -289,10 +289,22 @@ export default function Index() {
           <div className="flex-1">
             <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
             {mosqueName && mosquePrayers && (
-              <p className="text-[10px] text-primary flex items-center gap-1 mr-7 -mt-1">
-                <Building2 className="h-3 w-3" />
-                {mosqueName}
-              </p>
+              <div className="flex items-center gap-2 mr-7 -mt-1">
+                <p className="text-[10px] text-primary flex items-center gap-1">
+                  <Building2 className="h-3 w-3" />
+                  {mosqueName}
+                </p>
+                <button
+                  onClick={() => {
+                    unlinkMosque();
+                    toast.success('تم إلغاء ربط المسجد — الأوقات تلقائية حسب موقعك الآن');
+                  }}
+                  className="flex items-center gap-0.5 text-[10px] text-destructive hover:underline"
+                >
+                  <Unlink className="h-2.5 w-2.5" />
+                  إلغاء
+                </button>
+              </div>
             )}
           </div>
           <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">
