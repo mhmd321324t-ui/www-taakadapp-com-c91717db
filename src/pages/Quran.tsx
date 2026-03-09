@@ -6,7 +6,7 @@ import { Search, BookOpen, Bookmark, BookmarkCheck, Play, X } from 'lucide-react
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import FuturisticHeader from '@/components/FuturisticHeader';
+import PageHeader from '@/components/PageHeader';
 import { normalizeArabicForSearch } from '@/lib/arabicNormalize';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -112,10 +112,14 @@ export default function Quran() {
 
   const filtered = surahs.filter(s => {
     if (!search.trim()) return true;
+
+    // Number search
     if (String(s.number) === search.trim()) return true;
+
     const nameNorm = normalizeArabicForSearch(s.name);
     const enNameNorm = normalizeArabicForSearch(s.englishName);
     const enTrNorm = normalizeArabicForSearch(s.englishNameTranslation);
+
     return (
       nameNorm.includes(normalizedQuery) ||
       enNameNorm.includes(normalizedQuery) ||
@@ -127,17 +131,17 @@ export default function Quran() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <FuturisticHeader
+      <PageHeader
         title={t('quran')}
         subtitle="القرآن الكريم"
         compact
         actionsLeft={
           <div className="flex gap-2">
-            <button className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95" onClick={() => setShowSearch(!showSearch)}>
-              {showSearch ? <X className="h-4 w-4 text-primary" /> : <Search className="h-4 w-4 text-primary" />}
+            <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={() => setShowSearch(!showSearch)}>
+              {showSearch ? <X className="h-4 w-4 text-white" /> : <Search className="h-4 w-4 text-white" />}
             </button>
-            <button className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95" onClick={() => setTab('bookmarks')}>
-              <Bookmark className={cn("h-4 w-4", tab === 'bookmarks' ? 'text-accent fill-accent' : 'text-muted-foreground')} />
+            <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={() => setTab('bookmarks')}>
+              <Bookmark className={cn("h-4 w-4", tab === 'bookmarks' ? 'text-white fill-white' : 'text-white/70')} />
             </button>
           </div>
         }
@@ -158,7 +162,7 @@ export default function Quran() {
                 placeholder={t('search')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 rounded-2xl glass-futuristic border-neon"
+                className="pl-9 rounded-2xl bg-card border-border/50"
                 autoFocus
               />
             </div>
@@ -168,12 +172,12 @@ export default function Quran() {
 
       {/* Tabs */}
       <div className="px-5 mb-5 mt-2">
-        <div className="flex rounded-2xl border-neon overflow-hidden glass-futuristic">
+        <div className="flex rounded-2xl border border-border/50 overflow-hidden bg-card">
           <button
             onClick={() => setTab('juz')}
             className={cn(
               'flex-1 py-3 text-sm font-bold transition-all',
-              tab === 'juz' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              tab === 'juz' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
             )}
           >
             {t('juz')}
@@ -182,7 +186,7 @@ export default function Quran() {
             onClick={() => setTab('surah')}
             className={cn(
               'flex-1 py-3 text-sm font-bold transition-all',
-              tab === 'surah' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              tab === 'surah' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
             )}
           >
             {t('surah')}
@@ -214,7 +218,7 @@ export default function Quran() {
               <Link
                 key={juz.number}
                 to={`/quran/${juz.startSurah}`}
-                className="flex items-center gap-3 py-4 border-b border-border/30 active:bg-primary/5 transition-colors"
+                className="flex items-center gap-3 py-4 border-b border-border/50 active:bg-muted/50 transition-colors"
               >
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-bold text-foreground">{juz.name}</p>
@@ -226,7 +230,7 @@ export default function Quran() {
                   <svg viewBox="0 0 48 48" className="absolute inset-0 w-full h-full text-primary/20">
                     <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   </svg>
-                  <span className="text-sm font-bold text-accent z-10">
+                  <span className="text-sm font-bold text-foreground z-10">
                     {juz.number.toLocaleString('ar-EG')}
                   </span>
                 </div>
@@ -272,16 +276,16 @@ const SurahRow = forwardRef<HTMLDivElement, {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: Math.min(index * 0.015, 0.4) }}
-      className="border-b border-border/30 last:border-b-0"
+      className="border-b border-border/50 last:border-b-0"
     >
       <div
         onClick={() => navigate(`/quran/${surah.number}`)}
-        className="flex items-center gap-3 py-4 active:bg-primary/5 transition-colors cursor-pointer"
+        className="flex items-center gap-3 py-4 active:bg-muted/50 transition-colors cursor-pointer"
       >
         <div className="flex gap-2">
           <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); onToggleBookmark(e, surah.number); }}>
             {isBookmarked ? (
-              <BookmarkCheck className="h-4 w-4 text-accent fill-accent" />
+              <BookmarkCheck className="h-4 w-4 text-primary fill-primary" />
             ) : (
               <Bookmark className="h-4 w-4 text-muted-foreground" />
             )}
@@ -303,7 +307,7 @@ const SurahRow = forwardRef<HTMLDivElement, {
             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" />
             <circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" strokeWidth="0.5" />
           </svg>
-          <span className="text-sm font-bold text-accent z-10">
+          <span className="text-sm font-bold text-foreground z-10">
             {surah.number.toLocaleString('ar-EG')}
           </span>
         </div>

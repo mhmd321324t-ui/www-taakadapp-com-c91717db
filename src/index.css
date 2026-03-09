@@ -6,116 +6,116 @@
 
 @layer base {
   :root {
-    /* Snowy Cotton Cloud — soft whites, misty blues, warm greys */
-    --background: 210 30% 97%;
-    --foreground: 220 20% 20%;
+    /* 2030 Futuristic Islamic — Light: warm ivory + emerald + gold */
+    --background: 40 30% 97%;
+    --foreground: 160 30% 8%;
 
-    --card: 210 25% 99%;
-    --card-foreground: 220 20% 20%;
+    --card: 40 25% 99%;
+    --card-foreground: 160 30% 8%;
 
-    --popover: 210 25% 99%;
-    --popover-foreground: 220 20% 20%;
+    --popover: 40 25% 99%;
+    --popover-foreground: 160 30% 8%;
 
-    --primary: 210 50% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 160 55% 28%;
+    --primary-foreground: 45 80% 95%;
 
-    --secondary: 210 20% 93%;
-    --secondary-foreground: 220 15% 35%;
+    --secondary: 40 20% 93%;
+    --secondary-foreground: 160 20% 25%;
 
-    --muted: 210 15% 92%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 160 10% 42%;
 
-    --accent: 210 40% 65%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 85% 55%;
+    --accent-foreground: 35 50% 12%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 88%;
-    --input: 210 15% 91%;
-    --ring: 210 50% 55%;
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 160 55% 28%;
 
     --radius: 1.25rem;
 
-    /* Islamic palette — snowy variant */
-    --islamic-green: 210 50% 55%;
-    --islamic-green-foreground: 0 0% 100%;
-    --islamic-gold: 35 55% 55%;
-    --islamic-gold-foreground: 35 50% 10%;
-    --islamic-navy: 220 30% 30%;
-    --islamic-navy-foreground: 210 20% 95%;
-    --islamic-teal: 200 35% 50%;
-    --islamic-teal-light: 200 20% 92%;
-    --islamic-purple: 260 25% 55%;
-    --islamic-purple-light: 260 15% 93%;
-    --islamic-emerald: 180 30% 45%;
-    --islamic-emerald-glow: 180 40% 55%;
-    --islamic-rose: 350 35% 60%;
-    --islamic-copper: 25 40% 55%;
+    /* Islamic palette */
+    --islamic-green: 160 55% 28%;
+    --islamic-green-foreground: 45 80% 95%;
+    --islamic-gold: 42 85% 55%;
+    --islamic-gold-foreground: 35 50% 12%;
+    --islamic-navy: 200 45% 15%;
+    --islamic-navy-foreground: 40 30% 95%;
+    --islamic-teal: 175 50% 30%;
+    --islamic-teal-light: 175 25% 92%;
+    --islamic-purple: 280 35% 40%;
+    --islamic-purple-light: 280 20% 93%;
+    --islamic-emerald: 155 60% 22%;
+    --islamic-emerald-glow: 155 70% 40%;
+    --islamic-rose: 350 45% 55%;
+    --islamic-copper: 25 60% 50%;
 
-    --sidebar-background: 210 25% 96%;
-    --sidebar-foreground: 220 20% 25%;
-    --sidebar-primary: 210 50% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 92%;
-    --sidebar-accent-foreground: 220 15% 35%;
-    --sidebar-border: 210 20% 88%;
-    --sidebar-ring: 210 50% 55%;
+    --sidebar-background: 40 25% 99%;
+    --sidebar-foreground: 160 25% 18%;
+    --sidebar-primary: 160 55% 28%;
+    --sidebar-primary-foreground: 45 80% 95%;
+    --sidebar-accent: 40 20% 93%;
+    --sidebar-accent-foreground: 160 20% 25%;
+    --sidebar-border: 40 15% 88%;
+    --sidebar-ring: 160 55% 28%;
   }
 
-  /* Dark mode — snowy night */
   .dark {
-    --background: 220 25% 10%;
-    --foreground: 210 20% 90%;
+    /* 2030 Futuristic Islamic — Dark: obsidian + neon emerald + gold */
+    --background: 160 18% 5%;
+    --foreground: 40 15% 93%;
 
-    --card: 220 20% 13%;
-    --card-foreground: 210 20% 90%;
+    --card: 160 12% 10%;
+    --card-foreground: 40 15% 93%;
 
-    --popover: 220 20% 13%;
-    --popover-foreground: 210 20% 90%;
+    --popover: 160 12% 10%;
+    --popover-foreground: 40 15% 93%;
 
-    --primary: 210 50% 60%;
-    --primary-foreground: 220 25% 10%;
+    --primary: 155 65% 42%;
+    --primary-foreground: 160 20% 5%;
 
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 210 15% 70%;
+    --secondary: 160 12% 12%;
+    --secondary-foreground: 40 15% 78%;
 
-    --muted: 220 12% 20%;
-    --muted-foreground: 210 10% 55%;
+    --muted: 160 10% 14%;
+    --muted-foreground: 40 12% 60%;
 
-    --accent: 210 40% 65%;
-    --accent-foreground: 220 25% 10%;
+    --accent: 42 80% 52%;
+    --accent-foreground: 35 50% 8%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 18%;
-    --ring: 210 50% 60%;
+    --border: 160 12% 18%;
+    --input: 160 12% 18%;
+    --ring: 155 65% 42%;
 
-    --islamic-green: 210 50% 60%;
-    --islamic-green-foreground: 220 25% 10%;
-    --islamic-gold: 35 55% 55%;
-    --islamic-gold-foreground: 35 50% 10%;
-    --islamic-navy: 220 30% 15%;
-    --islamic-navy-foreground: 210 20% 90%;
-    --islamic-teal: 200 35% 50%;
-    --islamic-teal-light: 200 15% 15%;
-    --islamic-purple: 260 25% 50%;
-    --islamic-purple-light: 260 12% 15%;
-    --islamic-emerald: 180 30% 40%;
-    --islamic-emerald-glow: 180 40% 50%;
-    --islamic-rose: 350 35% 55%;
-    --islamic-copper: 25 40% 50%;
+    --islamic-green: 155 60% 40%;
+    --islamic-green-foreground: 160 20% 5%;
+    --islamic-gold: 42 75% 50%;
+    --islamic-gold-foreground: 35 50% 8%;
+    --islamic-navy: 200 35% 10%;
+    --islamic-navy-foreground: 40 25% 90%;
+    --islamic-teal: 175 45% 35%;
+    --islamic-teal-light: 175 15% 14%;
+    --islamic-purple: 280 30% 45%;
+    --islamic-purple-light: 280 15% 14%;
+    --islamic-emerald: 155 55% 30%;
+    --islamic-emerald-glow: 155 70% 45%;
+    --islamic-rose: 350 40% 50%;
+    --islamic-copper: 25 55% 45%;
 
-    --sidebar-background: 220 20% 12%;
-    --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 210 50% 60%;
-    --sidebar-primary-foreground: 220 25% 10%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 210 15% 70%;
-    --sidebar-border: 220 15% 22%;
-    --sidebar-ring: 210 50% 60%;
+    --sidebar-background: 160 15% 7%;
+    --sidebar-foreground: 40 15% 85%;
+    --sidebar-primary: 155 65% 42%;
+    --sidebar-primary-foreground: 160 20% 5%;
+    --sidebar-accent: 160 12% 12%;
+    --sidebar-accent-foreground: 40 15% 70%;
+    --sidebar-border: 160 12% 14%;
+    --sidebar-ring: 155 65% 42%;
   }
 }
 
@@ -136,7 +136,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
     font-size: 15px;
     line-height: 1.8;
     -webkit-font-smoothing: antialiased;
@@ -149,7 +149,7 @@
   }
 
   [dir="rtl"] {
-    font-family: 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
   }
 
   [dir="rtl"] p,
@@ -162,43 +162,47 @@
     min-width: 0;
   }
 
-  h1, h2, h3, p, span, button, a, label {
+  /* Typography reset for predictable mobile rendering */
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  button,
+  a,
+  label {
     line-height: 1.6;
     min-width: 0;
     text-wrap: pretty;
   }
 
-  button, a {
+  button,
+  a {
     white-space: normal;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-weight: 700;
   }
 }
 
 @layer utilities {
   .islamic-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L37.5 7.5L30 15L22.5 7.5Z' fill='%234a90b8' fill-opacity='0.06'/%3E%3Cpath d='M0 30L7.5 22.5L15 30L7.5 37.5Z' fill='%234a90b8' fill-opacity='0.06'/%3E%3Cpath d='M60 30L52.5 22.5L45 30L52.5 37.5Z' fill='%234a90b8' fill-opacity='0.06'/%3E%3Cpath d='M30 60L37.5 52.5L30 45L22.5 52.5Z' fill='%234a90b8' fill-opacity='0.06'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L37.5 7.5L30 15L22.5 7.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M0 30L7.5 22.5L15 30L7.5 37.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M60 30L52.5 22.5L45 30L52.5 37.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M30 60L37.5 52.5L30 45L22.5 52.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3C/svg%3E");
   }
 
   .gradient-islamic {
-    background: linear-gradient(145deg, hsl(210 25% 97%) 0%, hsl(210 20% 94%) 50%, hsl(210 30% 97%) 100%);
+    background: linear-gradient(145deg, hsl(160 55% 28%) 0%, hsl(155 60% 18%) 50%, hsl(160 45% 10%) 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, hsl(210 25% 97%) 0%, hsl(210 20% 95%) 60%, hsl(210 50% 55% / 0.08) 100%);
+    background: linear-gradient(135deg, hsl(155 60% 22%) 0%, hsl(160 50% 14%) 60%, hsl(42 85% 55% / 0.15) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, hsl(35 55% 55%) 0%, hsl(35 45% 42%) 100%);
-  }
-
-  .text-gradient-gold {
-    background: linear-gradient(45deg, hsl(var(--accent)), hsl(210 40% 45%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: linear-gradient(135deg, hsl(42 85% 55%) 0%, hsl(35 70% 45%) 100%);
   }
 
   .text-gradient-islamic {
@@ -208,62 +212,25 @@
     background-clip: text;
   }
 
-  .glass-futuristic {
-    background: hsl(210 25% 99% / 0.8);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid hsl(210 30% 85% / 0.6);
-  }
-
-  .dark .glass-futuristic {
-    background: hsl(220 20% 15% / 0.7);
-    border: 1px solid hsl(210 20% 30% / 0.4);
-  }
-
   .glass-card {
-    background: hsl(210 25% 99% / 0.7);
+    background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsl(210 30% 88% / 0.5);
-  }
-
-  .dark .glass-card {
-    background: hsl(220 20% 14% / 0.6);
-    border: 1px solid hsl(210 15% 25% / 0.4);
-  }
-
-  .glow-cyan {
-    box-shadow: 0 4px 20px -5px hsl(210 50% 55% / 0.15),
-                0 2px 8px -2px hsl(210 50% 55% / 0.08);
-  }
-
-  .glow-gold-neon {
-    box-shadow: 0 4px 15px -5px hsl(35 55% 55% / 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glow-emerald {
-    box-shadow: 0 4px 20px -5px hsl(210 50% 55% / 0.15);
+    box-shadow: 0 0 30px -5px hsl(155 65% 42% / 0.25),
+                0 0 60px -10px hsl(155 65% 42% / 0.1);
   }
 
   .glow-gold {
-    box-shadow: 0 4px 15px -5px hsl(35 55% 55% / 0.2);
-  }
-
-  .border-neon {
-    border-color: hsl(210 30% 85% / 0.6);
-  }
-
-  .dark .border-neon {
-    border-color: hsl(210 20% 30% / 0.4);
-  }
-
-  .border-neon-gold {
-    border-color: hsl(35 55% 55% / 0.3);
+    box-shadow: 0 0 20px -5px hsl(42 85% 55% / 0.3);
   }
 
   .shadow-elevated {
-    box-shadow: 0 8px 32px -8px hsl(210 30% 50% / 0.08),
-                0 2px 8px -2px hsl(0 0% 0% / 0.05);
+    box-shadow: 0 8px 32px -8px hsl(160 30% 8% / 0.08),
+                0 2px 8px -2px hsl(160 30% 8% / 0.04);
   }
 
   .pt-safe-header {
@@ -272,14 +239,6 @@
 
   .pt-safe-header-compact {
     padding-top: calc(3.75rem + env(safe-area-inset-top, 0px));
-  }
-
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow-cyan {
-    animation: pulseGlowCyan 3s infinite;
   }
 }
 
@@ -298,16 +257,4 @@ html {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes pulseGlowCyan {
-  0% { box-shadow: 0 4px 20px hsl(35 55% 55% / 0.15); }
-  50% { box-shadow: 0 4px 30px hsl(210 50% 55% / 0.2); }
-  100% { box-shadow: 0 4px 20px hsl(35 55% 55% / 0.15); }
 }
