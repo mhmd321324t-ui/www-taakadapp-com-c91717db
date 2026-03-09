@@ -279,9 +279,9 @@ export default function Index() {
 
       {/* Today's Prayers */}
       <div className="px-4 mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-foreground">{t('prayerTimes')}</h2>
-          <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5">
+        <div className="flex items-center justify-between mb-1">
+          <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
+          <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">
             {t('more')}
             <ChevronLeft className="h-3 w-3" />
           </Link>
