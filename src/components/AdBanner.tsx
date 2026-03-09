@@ -98,11 +98,6 @@ export function AdBanner({ position }: { position: string }) {
     };
   }, [position]);
 
-    return () => {
-      mounted = false;
-    };
-  }, [position]);
-
   // Track impression
   useTrackImpression(ad?.id);
 
