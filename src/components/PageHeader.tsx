@@ -1,12 +1,15 @@
 import { ReactNode } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
   actionsLeft?: ReactNode;
   compact?: boolean;
   image?: string;
+  backTo?: string;
 }
 
 export default function PageHeader({ title, subtitle, actions, actionsLeft, compact, image }: PageHeaderProps) {
