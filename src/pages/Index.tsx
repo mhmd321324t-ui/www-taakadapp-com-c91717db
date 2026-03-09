@@ -120,6 +120,7 @@ export default function Index() {
           alt="المسجد الحرام"
           className="w-full h-56 object-cover"
           loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
         
