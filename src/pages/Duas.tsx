@@ -342,7 +342,7 @@ export default function Duas() {
           ) : (
             <div className="px-5 pt-4">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] text-muted-foreground">{selectedSub?.duas.length} دعاء</span>
+                <span className="text-[10px] text-muted-foreground">{selectedSub?.duas.length} {t('totalDuas')}</span>
                 <div className="text-right">
                   <h2 className="text-lg font-bold text-foreground">
                     {selectedSub?.emoji} {t(selectedSub?.labelKey || '')}
