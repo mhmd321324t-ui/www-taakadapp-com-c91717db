@@ -120,8 +120,12 @@ export default function Index() {
   const completedGoals = prayersDone + tasbeehDone;
   const overallPercent = Math.round((completedGoals / totalGoals) * 100);
 
+  const [duaDrawerOpen, setDuaDrawerOpen] = useState(false);
+  const todayDua = dailyDuas[Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) % dailyDuas.length];
+
   return (
     <div className="min-h-screen pb-24" dir="rtl">
+      <DuaOfDayDrawer open={duaDrawerOpen} onOpenChange={setDuaDrawerOpen} />
       {/* Full-screen Athan Alert */}
       {alertPrayer && (
         <OccasionAthanAlert
