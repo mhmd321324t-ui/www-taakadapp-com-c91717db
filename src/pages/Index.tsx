@@ -111,6 +111,7 @@ export default function Index() {
     } else {
       setNotificationsEnabled(false);
       localStorage.setItem('athan-notifications', 'false');
+      unsubscribeFromPush().catch(console.error);
       toast.success(t('notificationsDisabled'));
     }
   };
