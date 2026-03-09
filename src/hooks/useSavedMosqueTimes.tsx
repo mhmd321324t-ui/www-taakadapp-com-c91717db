@@ -122,5 +122,17 @@ export function useSavedMosqueTimes(): SavedMosqueData {
     load();
   }, []);
 
-  return data;
+  const unlinkMosque = () => {
+    const saved = localStorage.getItem('selected_mosque');
+    if (saved) {
+      try {
+        const mosque = JSON.parse(saved);
+        if (mosque.osm_id) localStorage.removeItem(SAVED_TIMES_PREFIX + mosque.osm_id);
+      } catch { /* ignore */ }
+    }
+    localStorage.removeItem('selected_mosque');
+    setData({ mosqueName: null, prayers: null, loading: false });
+  };
+
+  return { ...data, unlinkMosque };
 }
