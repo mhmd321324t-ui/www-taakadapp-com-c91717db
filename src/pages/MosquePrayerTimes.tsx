@@ -282,7 +282,7 @@ export default function MosquePrayerTimesPage() {
       if (error) throw error;
       const sorted = (data?.mosques || [])
         .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-        .filter((m: Mosque) => m._dist! <= 10)
+        .filter((m: Mosque) => m._dist! <= 5)
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
       if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
