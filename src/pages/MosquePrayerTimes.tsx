@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   ArrowRight, MapPin, Search, Clock, Building2,
-  Check, Loader2, RefreshCw, Edit3, Save, X
+  Check, Loader2, RefreshCw, Edit3, Save, X, Unlink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,7 @@ interface Mosque {
   _dist?: number;
 }
 
-interface PrayerTimes {
+interface PrayerTimesMap {
   fajr: string;
   sunrise: string;
   dhuhr: string;
@@ -33,45 +33,45 @@ interface PrayerTimes {
 }
 
 const PRAYER_LABELS: Record<string, string> = {
-  fajr: 'الفجر',
-  sunrise: 'الشروق',
-  dhuhr: 'الظهر',
-  asr: 'العصر',
-  maghrib: 'المغرب',
-  isha: 'العشاء',
-  jumuah: 'الجمعة',
+  fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر',
+  asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء', jumuah: 'الجمعة',
 };
-
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
-
 const SAVED_MOSQUE_KEY = 'selected_mosque';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
-
-const emptyTimes: PrayerTimes = { fajr: '', sunrise: '', dhuhr: '', asr: '', maghrib: '', isha: '', jumuah: '' };
+const emptyTimes: PrayerTimesMap = { fajr: '', sunrise: '', dhuhr: '', asr: '', maghrib: '', isha: '', jumuah: '' };
 
 function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function detectIs12Hour(): boolean {
   try {
-    const testDate = new Date(2024, 0, 1, 14, 0);
-    const formatted = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' }).format(testDate);
-    return !formatted.includes('14');
+    const f = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' }).format(new Date(2024, 0, 1, 14, 0));
+    return !f.includes('14');
   } catch { return false; }
 }
 
-function to12Hour(time24: string): string {
-  const [h, m] = time24.split(':').map(Number);
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+function to12Hour(t24: string): string {
+  const [h, m] = t24.split(':').map(Number);
+  return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
+async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesMap | null> {
+  try {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const res = await fetch(`https://api.aladhan.com/v1/timings/${dd}-${mm}-${d.getFullYear()}?latitude=${lat}&longitude=${lon}&method=3`);
+    const json = await res.json();
+    const t = json.data.timings;
+    const c = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
+    return { fajr: c(t.Fajr), sunrise: c(t.Sunrise), dhuhr: c(t.Dhuhr), asr: c(t.Asr), maghrib: c(t.Maghrib), isha: c(t.Isha), jumuah: '' };
+  } catch { return null; }
 }
 
 export default function MosquePrayerTimesPage() {
@@ -82,22 +82,20 @@ export default function MosquePrayerTimesPage() {
   const [mosques, setMosques] = useState<Mosque[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedMosque, setSelectedMosque] = useState<Mosque | null>(null);
-  const [times, setTimes] = useState<PrayerTimes>(emptyTimes);
+  const [times, setTimes] = useState<PrayerTimesMap>(emptyTimes);
   const [timesLoading, setTimesLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editTimes, setEditTimes] = useState<PrayerTimes>(emptyTimes);
+  const [editTimes, setEditTimes] = useState<PrayerTimesMap>(emptyTimes);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [hasSavedTimes, setHasSavedTimes] = useState(false);
+  const [timesSource, setTimesSource] = useState<'api' | 'manual'>('api');
   const autoSearched = useRef(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUserId(data.session?.user?.id ?? null);
-    });
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
   }, []);
 
-  // Load saved mosque on mount
+  // Load saved mosque
   useEffect(() => {
     const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
     if (saved) {
@@ -109,104 +107,38 @@ export default function MosquePrayerTimesPage() {
     }
   }, []);
 
-  // When userId becomes available, try loading from DB
-  useEffect(() => {
-    if (!userId) return;
-    const loadFromDB = async () => {
-      const { data } = await supabase
-        .from('user_selected_mosque')
-        .select('mosque_id, mosques!user_selected_mosque_mosque_id_fkey(id, name, address, latitude, longitude, osm_id)')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (data && (data as any).mosques) {
-        const m = (data as any).mosques;
-        const mosque: Mosque = {
-          id: m.id, osm_id: m.osm_id || '', name: m.name,
-          address: m.address || '', latitude: m.latitude, longitude: m.longitude,
-        };
-        setSelectedMosque(mosque);
-        localStorage.setItem(SAVED_MOSQUE_KEY, JSON.stringify(mosque));
-        loadTimesForMosque(mosque);
-      }
-    };
-    loadFromDB();
-  }, [userId]);
-
   const loadTimesForMosque = async (mosque: Mosque) => {
     setTimesLoading(true);
-    setHasSavedTimes(false);
 
-    // 1. Check localStorage for saved manual times
+    // Check for manual overrides first
     const localKey = SAVED_TIMES_PREFIX + mosque.osm_id;
     const localSaved = localStorage.getItem(localKey);
     if (localSaved) {
       try {
         const parsed = JSON.parse(localSaved);
-        setTimes(parsed);
-        setHasSavedTimes(true);
-        setTimesLoading(false);
-        return;
-      } catch { /* ignore */ }
-    }
-
-    // 2. If logged in, check DB for saved times
-    if (userId && mosque.id) {
-      const { data: savedTimes } = await supabase
-        .from('user_mosque_times')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('mosque_id', mosque.id)
-        .order('date', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (savedTimes) {
-        const st = savedTimes as any;
-        const loaded: PrayerTimes = {
-          fajr: st.fajr || '', sunrise: st.sunrise || '', dhuhr: st.dhuhr || '',
-          asr: st.asr || '', maghrib: st.maghrib || '', isha: st.isha || '',
-          jumuah: st.jumuah || '',
-        };
-        // Only use if at least one time is set
-        if (Object.values(loaded).some(v => v)) {
-          setTimes(loaded);
-          setHasSavedTimes(true);
-          // Cache locally
-          localStorage.setItem(localKey, JSON.stringify(loaded));
+        if (parsed.fajr || parsed.dhuhr || parsed.asr || parsed.maghrib || parsed.isha) {
+          setTimes(parsed);
+          setTimesSource('manual');
           setTimesLoading(false);
           return;
         }
-      }
+      } catch { /* fall through */ }
     }
 
-    // 3. Fallback: fetch from Aladhan API
-    try {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=3`
-      );
-      const json = await res.json();
-      const t = json.data.timings;
-      const clean = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
-      setTimes({
-        fajr: clean(t.Fajr), sunrise: clean(t.Sunrise), dhuhr: clean(t.Dhuhr),
-        asr: clean(t.Asr), maghrib: clean(t.Maghrib), isha: clean(t.Isha), jumuah: '',
-      });
-    } catch {
+    // Auto-fetch from Aladhan API using mosque coordinates
+    const result = await fetchAladhanTimes(mosque.latitude, mosque.longitude);
+    if (result) {
+      setTimes(result);
+      setTimesSource('api');
+    } else {
       setTimes(emptyTimes);
+      setTimesSource('api');
     }
     setTimesLoading(false);
   };
 
   const searchMosques = useCallback(async () => {
-    if (!location.latitude || !location.longitude) {
-      toast.error('يرجى تفعيل الموقع أولاً');
-      return;
-    }
+    if (!location.latitude || !location.longitude) { toast.error('يرجى تفعيل الموقع أولاً'); return; }
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('search-mosques', {
@@ -214,18 +146,12 @@ export default function MosquePrayerTimesPage() {
       });
       if (error) throw error;
       const sorted = (data?.mosques || [])
-        .map((m: Mosque) => ({
-          ...m,
-          _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude),
-        }))
+        .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
       if (sorted.length === 0) toast('لم يتم العثور على مساجد قريبة');
-    } catch {
-      toast.error('خطأ في البحث عن المساجد');
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error('خطأ في البحث عن المساجد'); }
+    finally { setLoading(false); }
   }, [location.latitude, location.longitude]);
 
   useEffect(() => {
@@ -242,16 +168,12 @@ export default function MosquePrayerTimesPage() {
     loadTimesForMosque(mosque);
 
     if (!userId) return;
-
     let mosqueId = mosque.id;
     if (!mosqueId && mosque.osm_id) {
-      const { data: existing } = await supabase
-        .from('mosques').select('id').eq('osm_id', mosque.osm_id).maybeSingle();
-      if (existing) {
-        mosqueId = existing.id;
-      } else {
-        const { data: inserted } = await supabase
-          .from('mosques')
+      const { data: existing } = await supabase.from('mosques').select('id').eq('osm_id', mosque.osm_id).maybeSingle();
+      if (existing) { mosqueId = existing.id; }
+      else {
+        const { data: inserted } = await supabase.from('mosques')
           .insert({ name: mosque.name, address: mosque.address, latitude: mosque.latitude, longitude: mosque.longitude, osm_id: mosque.osm_id, city: location.city || '' })
           .select('id').single();
         mosqueId = inserted?.id ?? null;
@@ -259,27 +181,28 @@ export default function MosquePrayerTimesPage() {
     }
     if (!mosqueId) return;
     mosque.id = mosqueId;
-
-    await supabase.from('user_selected_mosque').upsert(
-      { user_id: userId, mosque_id: mosqueId } as any,
-      { onConflict: 'user_id' }
-    );
-    toast.success('تم اختيار المسجد ✅');
+    await supabase.from('user_selected_mosque').upsert({ user_id: userId, mosque_id: mosqueId } as any, { onConflict: 'user_id' });
+    toast.success('تم ربط المسجد — الأوقات تتحدث تلقائياً ✅');
   };
 
-  const startEditing = () => {
-    setEditTimes({ ...times });
-    setEditing(true);
+  const unlinkMosque = () => {
+    localStorage.removeItem(SAVED_MOSQUE_KEY);
+    if (selectedMosque?.osm_id) {
+      localStorage.removeItem(SAVED_TIMES_PREFIX + selectedMosque.osm_id);
+    }
+    setSelectedMosque(null);
+    setTimes(emptyTimes);
+    setTimesSource('api');
+    toast.success('تم إلغاء ربط المسجد — الأوقات حسب موقعك الآن');
   };
+
+  const startEditing = () => { setEditTimes({ ...times }); setEditing(true); };
 
   const saveTimes = async () => {
     setSaving(true);
-
-    // Always save to localStorage
     const localKey = SAVED_TIMES_PREFIX + (selectedMosque?.osm_id || '');
     localStorage.setItem(localKey, JSON.stringify(editTimes));
 
-    // Save to DB if logged in
     if (userId && selectedMosque?.id) {
       const today = new Date().toISOString().split('T')[0];
       await supabase.from('user_mosque_times').upsert(
@@ -289,16 +212,24 @@ export default function MosquePrayerTimesPage() {
     }
 
     setTimes({ ...editTimes });
-    setHasSavedTimes(true);
+    setTimesSource('manual');
     setEditing(false);
     setSaving(false);
-    toast.success('تم حفظ أوقات المسجد ✅');
+    toast.success('تم حفظ الأوقات ✅');
   };
 
-  const formatTime = (t: string) => {
-    if (!t) return '—';
-    return is12h ? to12Hour(t) : t;
+  const resetToAuto = async () => {
+    if (!selectedMosque) return;
+    const localKey = SAVED_TIMES_PREFIX + selectedMosque.osm_id;
+    localStorage.removeItem(localKey);
+    setTimesLoading(true);
+    const result = await fetchAladhanTimes(selectedMosque.latitude, selectedMosque.longitude);
+    if (result) { setTimes(result); setTimesSource('api'); }
+    setTimesLoading(false);
+    toast.success('تم إعادة الأوقات التلقائية');
   };
+
+  const fmt = (t: string) => (!t ? '—' : is12h ? to12Hour(t) : t);
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
@@ -327,73 +258,100 @@ export default function MosquePrayerTimesPage() {
       </div>
 
       <div className="px-5 -mt-4 relative z-10">
-        {/* Selected mosque with times */}
+        {/* Selected mosque card */}
         {selectedMosque && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
             <div className="rounded-3xl border border-primary/20 bg-card p-5 shadow-elevated">
+              {/* Header row */}
               <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  <h2 className="font-bold text-foreground">{selectedMosque.name}</h2>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Building2 className="h-5 w-5 text-primary shrink-0" />
+                  <h2 className="font-bold text-foreground truncate">{selectedMosque.name}</h2>
                 </div>
-                {!editing ? (
-                  <Button size="sm" variant="ghost" onClick={startEditing} className="gap-1.5 text-xs">
-                    <Edit3 className="h-3.5 w-3.5" />
-                    تعديل
-                  </Button>
-                ) : (
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
-                      <X className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button size="sm" onClick={saveTimes} disabled={saving} className="gap-1.5 text-xs">
-                      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                      حفظ
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-1 shrink-0">
+                  {!editing ? (
+                    <>
+                      <Button size="sm" variant="ghost" onClick={startEditing} className="gap-1 text-xs h-8 px-2">
+                        <Edit3 className="h-3 w-3" /> تعديل
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={unlinkMosque} className="text-xs h-8 px-2 text-destructive">
+                        <Unlink className="h-3 w-3" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="h-8 px-2">
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="sm" onClick={saveTimes} disabled={saving} className="gap-1 text-xs h-8 px-2">
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} حفظ
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
+
               {selectedMosque.address && (
-                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {selectedMosque.address}
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {selectedMosque.address}
                 </p>
               )}
 
+              {/* Source indicator */}
+              <div className={cn(
+                "rounded-xl px-3 py-1.5 mb-3 text-[11px] font-medium flex items-center gap-1.5",
+                timesSource === 'manual'
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "bg-muted text-muted-foreground border border-border/30"
+              )}>
+                <Clock className="h-3 w-3" />
+                {timesSource === 'manual'
+                  ? 'أوقات يدوية محفوظة'
+                  : 'أوقات تلقائية حسب إحداثيات المسجد'}
+                {timesSource === 'manual' && (
+                  <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
+                    إعادة للتلقائي
+                  </button>
+                )}
+              </div>
+
+              {/* Times */}
               {timesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {PRAYER_KEYS.map((key) => (
                     <div key={key} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
                       <span className="text-sm font-medium text-foreground">{PRAYER_LABELS[key]}</span>
                       {editing ? (
-                        <Input
-                          type="time"
-                          value={editTimes[key]}
+                        <Input type="time" value={editTimes[key]}
                           onChange={(e) => setEditTimes(prev => ({ ...prev, [key]: e.target.value }))}
-                          className="w-28 h-8 text-center text-sm"
-                        />
+                          className="w-28 h-8 text-center text-sm" />
                       ) : (
                         <span className={cn("text-sm font-mono", times[key] ? "text-foreground" : "text-muted-foreground")}>
-                          {formatTime(times[key])}
+                          {fmt(times[key])}
                         </span>
                       )}
                     </div>
                   ))}
                 </div>
               )}
-
-              <p className="text-[10px] text-muted-foreground mt-3 text-center flex items-center justify-center gap-1">
-                <Clock className="h-3 w-3" />
-                {hasSavedTimes
-                  ? 'أوقات محفوظة يدوياً — اضغط تعديل للتحديث'
-                  : 'أوقات تقريبية — اضغط تعديل لإدخال أوقات المسجد الدقيقة'}
-              </p>
             </div>
           </motion.div>
+        )}
+
+        {/* No mosque selected info */}
+        {!selectedMosque && !loading && mosques.length > 0 && (
+          <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
+            <p className="text-sm text-muted-foreground">
+              اختر مسجدك لعرض أوقات الصلاة حسبه
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              حالياً الأوقات تعمل تلقائياً حسب موقعك
+            </p>
+          </div>
         )}
 
         {/* Loading */}
@@ -417,17 +375,14 @@ export default function MosquePrayerTimesPage() {
                   const dist = mosque._dist ?? distanceKm(location.latitude!, location.longitude!, mosque.latitude, mosque.longitude);
                   const isSelected = selectedMosque?.osm_id === mosque.osm_id;
                   return (
-                    <motion.button
-                      key={mosque.osm_id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                    <motion.button key={mosque.osm_id}
+                      initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
                       onClick={() => selectMosque(mosque)}
                       className={cn(
                         "w-full text-right rounded-2xl border p-4 transition-all active:scale-[0.98]",
                         isSelected ? "border-primary bg-primary/5 shadow-md" : "border-border/50 bg-card hover:border-primary/30"
-                      )}
-                    >
+                      )}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
