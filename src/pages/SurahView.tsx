@@ -59,7 +59,7 @@ const quranTranslationEditions: Record<string, string> = {
 
 export default function SurahView() {
   const { id } = useParams();
-  const { t, isRTL } = useLocale();
+  const { t, isRTL, locale } = useLocale();
   const { user } = useAuth();
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [surahName, setSurahName] = useState('');
