@@ -218,9 +218,9 @@ export default function Ruqyah() {
                         {cat.emoji}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-foreground">{cat.name_ar}</p>
-                        {cat.name_en && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{cat.name_en}</p>
+                        <p className="font-bold text-foreground">{isArabic ? cat.name_ar : (cat.name_en || cat.name_ar)}</p>
+                        {!isArabic && cat.name_en && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{cat.name_ar}</p>
                         )}
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground rotate-180 rtl:rotate-0 shrink-0" />
