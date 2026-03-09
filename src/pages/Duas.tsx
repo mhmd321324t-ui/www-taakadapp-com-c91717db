@@ -299,11 +299,11 @@ export default function Duas() {
             </div>
           ) : showFavorites ? (
             <div className="px-5 pt-2 space-y-3">
-              <p className="text-sm font-bold text-foreground mb-3">⭐ المفضلة ({favoriteDuas.length})</p>
+              <p className="text-sm font-bold text-foreground mb-3">⭐ {t('favoritesLabel')} ({favoriteDuas.length})</p>
               {favoriteDuas.length === 0 ? (
                 <div className="text-center py-12">
                   <Heart className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">لا توجد أدعية مفضلة بعد</p>
+                  <p className="text-sm text-muted-foreground">{t('noFavoriteDuas')}</p>
                 </div>
               ) : favoriteDuas.map((dua, j) => renderDuaCard(dua, j))}
             </div>
