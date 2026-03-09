@@ -118,7 +118,7 @@ export default function Tasbeeh() {
       <PageHeader
         title={t('tasbeeh')}
         subtitle="اذكر الله وسبّحه"
-        image="https://images.unsplash.com/photo-1590076215667-875d4ef2d7de?w=800&q=80"
+        image="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&q=85"
         actionsLeft={
           <button
             onClick={handleReset}
