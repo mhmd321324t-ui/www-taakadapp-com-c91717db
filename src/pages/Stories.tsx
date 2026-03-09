@@ -341,8 +341,8 @@ export default function Stories() {
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       <PageHeader
-        title="📖 قصص حقيقية"
-        subtitle="شارك قصتك وألهم الآخرين"
+        title={t('storiesTitle')}
+        subtitle={t('storiesSubtitle')}
         image="https://images.unsplash.com/photo-1688668782203-b69f916c48db?w=1200&q=85"
         actionsLeft={
           viewMode !== 'categories' ? (
