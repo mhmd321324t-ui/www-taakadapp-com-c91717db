@@ -25,18 +25,12 @@ export function usePrefetch() {
     if (!pagesPreloaded) {
       pagesPreloaded = true;
       setTimeout(() => {
-        import('../pages/MosquePrayerTimes');
         import('../pages/PrayerTimes');
-        import('../pages/Qibla');
         import('../pages/Quran');
         import('../pages/Tasbeeh');
         import('../pages/Duas');
-        import('../pages/PrayerTracker');
-        import('../pages/Stories');
-        import('../pages/ZakatCalculator');
-        import('../pages/DailyDuas');
         import('../pages/More');
-      }, 1000);
+      }, 5000);
     }
   }, []);
 }
