@@ -259,7 +259,7 @@ export default function MosquePrayerTimesPage() {
               {location.city ? `📍 ${location.city}` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
-          <button onClick={searchMosques} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
+          <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
             <RefreshCw className={cn("h-4 w-4 text-foreground", loading && "animate-spin")} />
           </button>
         </div>
