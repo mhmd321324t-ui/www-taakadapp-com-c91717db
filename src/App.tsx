@@ -33,6 +33,7 @@ const queryClient = new QueryClient();
 
 function SEOWrapper({ children }: { children: React.ReactNode }) {
   useSEO();
+  usePrefetch();
   return <>{children}</>;
 }
 
