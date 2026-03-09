@@ -826,7 +826,9 @@ export default function MosquePrayerTimesPage() {
             </motion.div>
           ) : mosques.length > 0 ? (
             <div className="space-y-2">
-              {mosques.map((mosque, idx) => {
+              {mosques
+                .filter(m => mosqueFilter === 'all' ? true : mosqueFilter === 'auto' ? m.hasAutoSync === true : m.hasAutoSync === false)
+                .map((mosque, idx) => {
                 const isSelected = selectedMosque?.osm_id === mosque.osm_id;
                 return (
                   <motion.div
