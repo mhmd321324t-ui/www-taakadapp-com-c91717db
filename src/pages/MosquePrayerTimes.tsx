@@ -127,7 +127,6 @@ export default function MosquePrayerTimesPage() {
   const [textSearch, setTextSearch] = useState('');
   const [textSearching, setTextSearching] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<string | null>(null);
-  const [mosqueFilter, setMosqueFilter] = useState<'all' | 'auto' | 'manual'>('all');
   const autoSearched = useRef(false);
 
   useEffect(() => {
@@ -253,7 +252,7 @@ export default function MosquePrayerTimesPage() {
         if (instant && instant.length > 0) {
           const sorted = instant
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 5)
+            .filter((m: Mosque) => m._dist! <= 10)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -266,7 +265,7 @@ export default function MosquePrayerTimesPage() {
         if (awaited && awaited.length > 0) {
           const sorted = awaited
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 5)
+            .filter((m: Mosque) => m._dist! <= 10)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -276,13 +275,13 @@ export default function MosquePrayerTimesPage() {
         }
       }
 
-      const body: any = { lat: location.latitude, lon: location.longitude, radius: 5000 };
+      const body: any = { lat: location.latitude, lon: location.longitude, radius: 10000 };
       if (query) body.textQuery = query;
       const { data, error } = await supabase.functions.invoke('search-mosques', { body });
       if (error) throw error;
       const sorted = (data?.mosques || [])
         .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-        .filter((m: Mosque) => m._dist! <= 5)
+        .filter((m: Mosque) => m._dist! <= 10)
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
       if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
@@ -566,7 +565,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">أوقات المساجد</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — نطاق 10 كم` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -782,30 +781,6 @@ export default function MosquePrayerTimesPage() {
           </motion.div>
         )}
 
-        {/* Filter tabs */}
-        {mosques.length > 0 && (
-          <div className="flex gap-2 mb-4 overflow-x-auto">
-            {([
-              { key: 'all' as const, label: 'الكل', count: mosques.length },
-              { key: 'auto' as const, label: '⚡ تلقائي', count: mosques.filter(m => m.hasAutoSync === true).length },
-              { key: 'manual' as const, label: '✏️ يدوي', count: mosques.filter(m => m.hasAutoSync === false).length },
-            ]).map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setMosqueFilter(tab.key)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap",
-                  mosqueFilter === tab.key
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border/50 hover:border-primary/30"
-                )}
-              >
-                {tab.label} ({tab.count})
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* No mosque selected info */}
         {!selectedMosque && !loading && mosques.length > 0 && (
           <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
@@ -813,7 +788,7 @@ export default function MosquePrayerTimesPage() {
               اختر مسجدك لعرض أوقات الصلاة حسبه
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              المساجد المحيطة بك ضمن نطاق 5 كم
+              المساجد المحيطة بك ضمن نطاق 10 كم
             </p>
           </div>
         )}
@@ -826,9 +801,7 @@ export default function MosquePrayerTimesPage() {
             </motion.div>
           ) : mosques.length > 0 ? (
             <div className="space-y-2">
-              {mosques
-                .filter(m => mosqueFilter === 'all' ? true : mosqueFilter === 'auto' ? m.hasAutoSync === true : m.hasAutoSync === false)
-                .map((mosque, idx) => {
+              {mosques.map((mosque, idx) => {
                 const isSelected = selectedMosque?.osm_id === mosque.osm_id;
                 return (
                   <motion.div
