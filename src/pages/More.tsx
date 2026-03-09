@@ -1,15 +1,17 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useDailyReminders } from '@/hooks/useDailyReminders';
 import { Link } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User,
-  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare, Shield
+  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare, Shield, Bell, BellOff
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
+import { toast } from 'sonner';
 
 const features = [
   { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', gradient: 'from-primary/15 to-islamic-teal/10' },
@@ -27,10 +29,24 @@ export default function More() {
   const { t } = useLocale();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { enabled: remindersEnabled, toggle: toggleReminders } = useDailyReminders();
 
   const allFeatures = isAdmin
     ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', gradient: 'from-destructive/15 to-destructive/5' }]
     : features;
+
+  const handleToggleReminders = async () => {
+    const result = await toggleReminders();
+    if (result) {
+      if (!remindersEnabled) {
+        toast.success('تم تفعيل التذكيرات اليومية 🔔');
+      } else {
+        toast.info('تم إيقاف التذكيرات اليومية');
+      }
+    } else {
+      toast.error('يرجى السماح بالإشعارات من إعدادات المتصفح');
+    }
+  };
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
@@ -102,6 +118,75 @@ export default function More() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Daily Reminders Toggle */}
+      <div className="px-5 mt-5">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={cn(
+                'h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors',
+                remindersEnabled ? 'bg-primary/10' : 'bg-muted'
+              )}>
+                {remindersEnabled ? (
+                  <Bell className="h-6 w-6 text-primary" />
+                ) : (
+                  <BellOff className="h-6 w-6 text-muted-foreground" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-foreground text-sm">التذكيرات اليومية</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  {remindersEnabled 
+                    ? 'أذكار الصباح • الأدعية • القرآن • أذكار النوم' 
+                    : 'فعّل التذكيرات لتتلقى إشعارات يومية بالأذكار والأدعية'}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleToggleReminders}
+              variant={remindersEnabled ? 'default' : 'outline'}
+              size="sm"
+              className={cn(
+                'rounded-xl shrink-0 h-10 px-4',
+                remindersEnabled && 'bg-primary hover:bg-primary/90'
+              )}
+            >
+              {remindersEnabled ? 'مُفعّل ✓' : 'تفعيل'}
+            </Button>
+          </div>
+
+          {remindersEnabled && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-4 pt-4 border-t border-border/50 space-y-2.5"
+            >
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-base">☀️</span>
+                <span>7:30 صباحاً — أذكار الخروج من المنزل</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-base">🤲</span>
+                <span>1:00 ظهراً — دعاء للوالدين والتسبيح</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-base">📖</span>
+                <span>8:00 مساءً — قراءة القرآن</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-base">🌙</span>
+                <span>10:00 مساءً — أذكار قبل النوم</span>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
 
       {/* Athan Sound Selector */}
