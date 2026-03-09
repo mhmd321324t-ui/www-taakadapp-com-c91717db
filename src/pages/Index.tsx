@@ -38,7 +38,7 @@ export default function Index() {
     location.longitude,
     location.calculationMethod
   );
-  const { mosqueName, prayers: mosquePrayers, loading: mosqueLoading, unlinkMosque } = useSavedMosqueTimes();
+  const { mosqueName, prayers: mosquePrayers, loading: mosqueLoading, unlinkMosque, source: mosqueSource } = useSavedMosqueTimes();
   
   // Use mosque times if available, otherwise use location-based times
   const prayers = mosquePrayers || apiPrayers;
