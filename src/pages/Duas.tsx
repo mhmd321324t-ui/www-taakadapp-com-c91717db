@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 import {
   Search, Bookmark, ChevronRight, ArrowRight, X,
   Bed, Droplets, Home, Shirt, Plane, UtensilsCrossed,
@@ -189,10 +191,10 @@ export default function Duas() {
     </motion.div>
   );
 
-  const renderSection = (title: string, items: CatItem[]) => (
+  const renderSection = (title: string, items: CatItem[], emoji?: string) => (
     <>
       <div className="px-5 mt-6 mb-2">
-        <p className="text-sm font-bold text-foreground">{title}</p>
+        <SectionHeader emoji={emoji} title={title} />
       </div>
       <div className="px-5">
         {items.map((cat) => {
@@ -229,10 +231,11 @@ export default function Duas() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-12 pt-safe-header-compact">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="flex items-center justify-between relative z-10">
+      <PageHeader
+        title="الدُعاء والذكر"
+        subtitle="أدعية وأذكار من الكتاب والسنة"
+        compact
+        actionsLeft={
           <div className="flex gap-2">
             {(viewMode !== 'categories' || showFavorites) ? (
               <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -249,14 +252,8 @@ export default function Duas() {
               </>
             )}
           </div>
-          <div className="text-center flex-1">
-            <h1 className="text-2xl font-bold text-white">الدُعاء والذكر</h1>
-            <p className="text-white/70 text-sm mt-1 leading-relaxed">أدعية وأذكار من الكتاب والسنة</p>
-          </div>
-          <div className="w-20" />
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+        }
+      />
 
       {/* Search bar */}
       <AnimatePresence>
@@ -311,10 +308,10 @@ export default function Duas() {
             </div>
           ) : viewMode === 'categories' ? (
             <>
-              {renderSection('يومي', dailyCategories)}
-              {renderSection('أذكار', adhkarCategories)}
-              {renderSection('أخرى', moreCategories)}
-              {renderSection('متقطع', occasionalCategories)}
+              {renderSection('يومي', dailyCategories, '📅')}
+              {renderSection('أذكار', adhkarCategories, '📿')}
+              {renderSection('أخرى', moreCategories, '📂')}
+              {renderSection('متقطع', occasionalCategories, '🗓️')}
             </>
           ) : viewMode === 'subCategories' ? (
             <div className="px-5 pt-4">

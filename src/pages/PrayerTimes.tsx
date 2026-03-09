@@ -4,6 +4,8 @@ import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 import { toast } from 'sonner';
 
 const prayerIcons: Record<string, React.ReactNode> = {
@@ -49,21 +51,16 @@ export default function PrayerTimes() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="flex items-center justify-between relative z-10">
+      <PageHeader
+        title={t('prayerTimes')}
+        subtitle={`${dayName}، ${dateStr}`}
+        compact
+        actionsLeft={
           <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={handleShare}>
             <Share2 className="h-4 w-4 text-white" />
           </button>
-          <div className="text-center flex-1">
-            <h1 className="text-2xl font-bold text-white">{t('prayerTimes')}</h1>
-            <p className="text-white/70 text-sm mt-1.5 leading-relaxed">{dayName}، {dateStr}</p>
-          </div>
-          <div className="w-10" />
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+        }
+      />
 
       {/* Location card */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
@@ -80,7 +77,7 @@ export default function PrayerTimes() {
 
       {/* Prayer List */}
       <div className="px-5 mb-5">
-        <h2 className="text-sm font-bold text-foreground mb-3">أوقات الصلاة اليوم</h2>
+        <SectionHeader icon={Clock} title="أوقات الصلاة اليوم" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {loading ? (
             <div className="flex items-center justify-center py-20">

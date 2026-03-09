@@ -4,8 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Check, Flame, LogIn } from 'lucide-react';
+import { Check, Flame, LogIn, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
@@ -98,14 +100,7 @@ export default function PrayerTracker() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="text-center relative z-10">
-          <h1 className="text-2xl font-bold text-primary-foreground">{t('tracker')}</h1>
-          <p className="text-primary-foreground/70 text-sm mt-1.5 leading-relaxed">تابع صلواتك اليومية</p>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+      <PageHeader title={t('tracker')} subtitle="تابع صلواتك اليومية" />
 
       <div className="px-5 -mt-8 relative z-10">
         {!user && (
@@ -151,7 +146,7 @@ export default function PrayerTracker() {
         </div>
 
         {/* Prayer checklist */}
-        <h2 className="text-sm font-bold text-foreground mb-3">صلوات اليوم</h2>
+        <SectionHeader icon={ListChecks} title="صلوات اليوم" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);

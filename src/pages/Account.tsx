@@ -2,9 +2,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { User, LogOut, Mail, Calendar, Shield } from 'lucide-react';
+import { User, LogOut, Mail, Calendar, Shield, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 export default function Account() {
   const { user, loading, signOut } = useAuth();
@@ -42,15 +44,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="text-center relative z-10">
-          <h1 className="text-2xl font-bold text-white">حسابي</h1>
-          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">إدارة حسابك الشخصي</p>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+      <PageHeader title="حسابي" subtitle="إدارة حسابك الشخصي" compact />
 
       {/* Avatar & Name */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
@@ -78,7 +72,7 @@ export default function Account() {
 
       {/* Info cards */}
       <div className="px-5 mb-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">معلومات الحساب</h3>
+        <SectionHeader icon={Info} title="معلومات الحساب" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           <motion.div
             initial={{ opacity: 0, y: 10 }}

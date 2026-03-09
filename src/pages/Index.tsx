@@ -9,7 +9,8 @@ import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles, Clock, Zap } from 'lucide-react';
+import SectionHeader from '@/components/SectionHeader';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
@@ -278,9 +279,9 @@ export default function Index() {
 
       {/* Today's Prayers */}
       <div className="px-4 mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-foreground">{t('prayerTimes')}</h2>
-          <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5">
+        <div className="flex items-center justify-between mb-1">
+          <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
+          <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">
             {t('more')}
             <ChevronLeft className="h-3 w-3" />
           </Link>
@@ -317,7 +318,7 @@ export default function Index() {
 
       {/* Quick Access */}
       <div className="px-4 mb-5">
-        <h2 className="text-sm font-bold text-foreground mb-3">{t('quickAccess')}</h2>
+        <SectionHeader icon={Zap} title={t('quickAccess')} />
         <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
           {quickAccessItems.map((item, i) => (
             <motion.div
@@ -398,7 +399,7 @@ export default function Index() {
 
       {/* Hijri Calendar */}
       <div className="px-4 mb-8">
-        <h2 className="text-sm font-bold text-foreground mb-3">{t('hijriCalendar')}</h2>
+        <SectionHeader emoji="📅" title={t('hijriCalendar')} />
         <HijriCalendar
           hijriDay={hijriDay}
           hijriMonth={hijriMonthNumber || undefined}

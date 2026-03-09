@@ -4,8 +4,10 @@ import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator, MapPin, RefreshCw, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calculator, MapPin, RefreshCw, Info, ChevronDown, ChevronUp, Coins, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 // Comprehensive currency data by country code
 const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; name: string }> = {
@@ -209,31 +211,17 @@ export default function ZakatCalculator() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-8 pt-safe-header-compact">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <h1 className="text-2xl font-bold text-primary-foreground relative z-10">{t('zakatCalculator')}</h1>
-        <p className="text-primary-foreground/70 text-sm mt-1 relative z-10">حاسبة ذكية متعددة العملات</p>
-
-        {/* Location badge */}
-        {city && country && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/15 px-3 py-1.5 text-xs text-primary-foreground"
-          >
-            <MapPin className="h-3 w-3" />
-            <span>{city}، {country}</span>
-          </motion.div>
-        )}
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+      <PageHeader
+        title={t('zakatCalculator')}
+        subtitle={city && country ? `${city}، ${country}` : 'حاسبة ذكية متعددة العملات'}
+        compact
+      />
 
       <div className="px-5 -mt-2 relative z-10 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
-          <label className="text-sm font-bold text-foreground mb-1 block">العملة</label>
-          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">اختر عملة بلدك لحساب النصاب</p>
+          <SectionHeader icon={Coins} title="العملة" subtitle="اختر عملة بلدك لحساب النصاب" className="mb-3" />
+          
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="rounded-2xl">
               <SelectValue placeholder={geoLoading ? 'جاري التحديد...' : 'اختر العملة'} />
@@ -271,10 +259,7 @@ export default function ZakatCalculator() {
 
         {/* Asset fields */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
-          <div>
-            <h2 className="text-sm font-bold text-foreground">أصولك ومدخراتك</h2>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">أدخل قيمة كل نوع من الأصول بالعملة المختارة</p>
-          </div>
+          <SectionHeader icon={ClipboardList} title="أصولك ومدخراتك" subtitle="أدخل قيمة كل نوع من الأصول بالعملة المختارة" />
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
               key={labelKey || label}
