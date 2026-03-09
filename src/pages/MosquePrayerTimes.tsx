@@ -110,22 +110,7 @@ function getCalcSettings(): { method: number; school: number; latitude?: number;
   return { method: 3, school: 0 };
 }
 
-async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesMap | null> {
-  try {
-    const d = new Date();
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const { method, school } = getCalcSettings();
-    const res = await fetch(
-      `https://api.aladhan.com/v1/timings/${dd}-${mm}-${d.getFullYear()}?latitude=${lat}&longitude=${lon}&method=${method}&school=${school}&adjustment=0`,
-      { cache: 'no-store' }
-    );
-    const json = await res.json();
-    const t = json.data.timings;
-    const c = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
-    return { fajr: c(t.Fajr), sunrise: c(t.Sunrise), dhuhr: c(t.Dhuhr), asr: c(t.Asr), maghrib: c(t.Maghrib), isha: c(t.Isha), jumuah: '' };
-  } catch { return null; }
-}
+// Removed fetchAladhanTimes — edge function handles all fallbacks
 
 export default function MosquePrayerTimesPage() {
   const navigate = useNavigate();
