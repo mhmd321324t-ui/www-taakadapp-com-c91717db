@@ -223,7 +223,7 @@ export default function Index() {
 
             {/* Next prayer info */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1">الصلاة القادمة</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('nextPrayerLabel')}</p>
               <p className="text-2xl font-bold text-foreground leading-tight">
                 {nextPrayer ? prayerNames[nextPrayer.key] || t(nextPrayer.key) : '—'}
               </p>
