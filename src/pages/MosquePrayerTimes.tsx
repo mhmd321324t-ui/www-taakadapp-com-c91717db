@@ -433,6 +433,38 @@ export default function MosquePrayerTimesPage() {
 
   const fmt = (t: string) => (!t ? '—' : is12h ? to12Hour(t) : t);
 
+  const shareMosqueTimes = async () => {
+    if (!selectedMosque) return;
+    const lines = [
+      `🕌 أوقات الصلاة — ${selectedMosque.name}`,
+      selectedMosque.address ? `📍 ${selectedMosque.address}` : '',
+      '',
+      `الفجر: ${fmt(times.fajr)}`,
+      `الشروق: ${fmt(times.sunrise)}`,
+      `الظهر: ${fmt(times.dhuhr)}`,
+      `العصر: ${fmt(times.asr)}`,
+      `المغرب: ${fmt(times.maghrib)}`,
+      `العشاء: ${fmt(times.isha)}`,
+      times.jumuah ? `الجمعة: ${fmt(times.jumuah)}` : '',
+      '',
+      `📅 ${new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
+    ].filter(Boolean).join('\n');
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `أوقات ${selectedMosque.name}`, text: lines });
+        return;
+      } catch { /* user cancelled or not supported */ }
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(lines);
+      toast.success('تم نسخ الأوقات إلى الحافظة 📋');
+    } catch {
+      toast.error('تعذر النسخ');
+    }
+  };
+
   const getDiffKey = (key: string): keyof TimeDiffs => `${key}_diff` as keyof TimeDiffs;
 
   return (
