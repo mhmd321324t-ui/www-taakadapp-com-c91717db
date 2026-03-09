@@ -4,6 +4,7 @@ import type { PrayerTime } from './usePrayerTimes';
 
 const SAVED_MOSQUE_KEY = 'selected_mosque';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
+const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
 const LIVE_CACHE_PREFIX = 'mosque_live_';
 
 type TimesSource = 'manual' | 'mawaqit' | 'website' | 'api' | 'none';
@@ -31,9 +32,29 @@ function to12Hour(time24: string): string {
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function applyTimeDiff(time: string, diffMinutes: number): string {
+  if (!time || diffMinutes === 0) return time;
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + diffMinutes;
+  const newH = Math.floor(((total % 1440) + 1440) % 1440 / 60);
+  const newM = ((total % 60) + 60) % 60;
+  return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+}
+
 function makePrayerTime(key: string, time24: string, is12h: boolean): PrayerTime {
   const fmt = (t: string) => (!t ? '' : is12h ? to12Hour(t) : t);
   return { name: key, time24, time: fmt(time24), key };
+}
+
+function applyDiffsToTimes(times: Record<string, string>, diffs: Record<string, number>): Record<string, string> {
+  return {
+    fajr: applyTimeDiff(times.fajr || '', diffs.fajr_diff || 0),
+    sunrise: applyTimeDiff(times.sunrise || '', diffs.sunrise_diff || 0),
+    dhuhr: applyTimeDiff(times.dhuhr || '', diffs.dhuhr_diff || 0),
+    asr: applyTimeDiff(times.asr || '', diffs.asr_diff || 0),
+    maghrib: applyTimeDiff(times.maghrib || '', diffs.maghrib_diff || 0),
+    isha: applyTimeDiff(times.isha || '', diffs.isha_diff || 0),
+  };
 }
 
 function timesMapToPrayers(times: Record<string, string>, is12h: boolean): PrayerTime[] {
@@ -94,6 +115,13 @@ export function useSavedMosqueTimes(): SavedMosqueData {
         } catch { /* fall through */ }
       }
 
+      // Load saved diffs
+      const diffsStr = localStorage.getItem(SAVED_DIFFS_PREFIX + mosque.osm_id);
+      let diffs: Record<string, number> = {};
+      if (diffsStr) {
+        try { diffs = JSON.parse(diffsStr); } catch { /* ignore */ }
+      }
+
       // 2. Try live sync from mosque website
       const today = new Date();
       const dateKey = `${today.getDate()}${today.getMonth() + 1}${today.getFullYear()}`;
@@ -106,7 +134,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
           if (cached.times) {
             setData({
               mosqueName: mosque.name,
-              prayers: timesMapToPrayers(cached.times, is12h),
+              prayers: timesMapToPrayers(applyDiffsToTimes(cached.times, diffs), is12h),
               loading: false,
               source: cached.source || 'website',
             });
@@ -137,7 +165,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
 
           setData({
             mosqueName: mosque.name,
-            prayers: timesMapToPrayers(liveData.times, is12h),
+            prayers: timesMapToPrayers(applyDiffsToTimes(liveData.times, diffs), is12h),
             loading: false,
             source: liveData.source as TimesSource,
           });
@@ -179,7 +207,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
 
           setData({
             mosqueName: mosque.name,
-            prayers: timesMapToPrayers(times, is12h),
+            prayers: timesMapToPrayers(applyDiffsToTimes(times, diffs), is12h),
             loading: false,
             source: 'api',
           });
