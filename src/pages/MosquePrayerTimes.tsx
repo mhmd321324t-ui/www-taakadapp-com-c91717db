@@ -276,7 +276,7 @@ export default function MosquePrayerTimesPage() {
         }
       }
 
-      const body: any = { lat: location.latitude, lon: location.longitude, radius: 10000 };
+      const body: any = { lat: location.latitude, lon: location.longitude, radius: 5000 };
       if (query) body.textQuery = query;
       const { data, error } = await supabase.functions.invoke('search-mosques', { body });
       if (error) throw error;
