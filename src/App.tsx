@@ -8,6 +8,7 @@ import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSEO } from "@/hooks/useSEO";
+import { usePrefetch } from "@/hooks/usePrefetch";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
