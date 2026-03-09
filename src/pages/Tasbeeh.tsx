@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { RotateCcw, LogIn, Sparkles } from 'lucide-react';
+import { RotateCcw, LogIn, Sparkles, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 const dhikrOptions = [
   { key: 'subhanAllah', arabic: 'سُبْحَانَ اللّهِ', target: 33, emoji: '📿' },
