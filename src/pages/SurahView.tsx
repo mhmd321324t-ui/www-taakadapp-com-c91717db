@@ -113,7 +113,7 @@ export default function SurahView() {
     }
 
     return () => { audio.pause(); };
-  }, [id, user]);
+  }, [id, user, locale]);
 
   const toggleBookmark = async () => {
     if (!user) {
