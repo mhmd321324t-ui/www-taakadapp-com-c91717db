@@ -21,7 +21,6 @@ export function useAthanNotifications(
   enabled: boolean = true,
   onAlert?: AthanAlertCallback
 ) {
-  const scheduledRef = useRef(false);
 
   // Register the alert callback
   useEffect(() => {
