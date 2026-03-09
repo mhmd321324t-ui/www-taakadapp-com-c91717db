@@ -5,3 +5,5 @@ project_id = "vnbysqlkaceulzmjhgxc"
     verify_jwt = false
   [functions.daily-duas]
     verify_jwt = false
+  [functions.search-mosques]
+    verify_jwt = false
