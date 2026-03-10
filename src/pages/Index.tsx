@@ -19,7 +19,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
-import { subscribeToPush, unsubscribeFromPush } from '@/lib/pushSubscription';
+import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
+import { useSearchParams } from 'react-router-dom';
 
 // Lazy load below-the-fold components
 const VideoContentCarousel = lazy(() => import('@/components/VideoContentCarousel'));
