@@ -137,6 +137,7 @@ export default function MosquePrayerTimesPage() {
   const [mosqueFilter, setMosqueFilter] = useState<'all' | 'auto' | 'manual'>('all');
   const [countdown, setCountdown] = useState<{ key: string; label: string; remaining: string } | null>(null);
   const autoSearched = useRef(false);
+  const batchCheckRef = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
