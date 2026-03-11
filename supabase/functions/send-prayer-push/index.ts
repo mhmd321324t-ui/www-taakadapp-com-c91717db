@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
       });
     }
 
-   webpush.setVapidDetails(\'mailto:noreply@almuezzin.com\', publicKey, privateKey);
+   webpush.setVapidDetails('mailto:noreply@almuezzin.com', publicKey, privateKey);
     // Get all push subscriptions
     const { data: subs } = await supabase.from('push_subscriptions').select('*');
     if (!subs || subs.length === 0) {

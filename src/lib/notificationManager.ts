@@ -229,7 +229,6 @@ export async function sendPushNotification(
       badge: payload.badge || '/badge-72x72.png',
       tag: payload.tag || 'default',
       requireInteraction: priority === NotificationPriority.URGENT || priority === NotificationPriority.HIGH,
-      vibrate: payload.vibrate || vibrationPattern,
       silent: payload.silent || false,
       actions: payload.actions,
       data: {
@@ -237,7 +236,7 @@ export async function sendPushNotification(
         priority,
         timestamp: Date.now(),
       },
-    });
+    } as any);
 
     notificationQueue.add(payload);
   } catch (error) {
