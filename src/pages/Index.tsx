@@ -11,6 +11,7 @@ import { useAutoTheme } from '@/hooks/useAutoTheme';
 import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
 import DailyGoals from '@/components/DailyGoals';
+import SmartNotes from '@/components/SmartNotes';
 import NotificationCard from '@/components/NotificationCard';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2 } from 'lucide-react';
@@ -441,6 +442,9 @@ export default function Index() {
 
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
+
+      {/* ===== SMART NOTES ===== */}
+      <SmartNotes />
 
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />

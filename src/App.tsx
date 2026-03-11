@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback } from "react";
+import { lazy, Suspense, useState, useCallback, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +12,8 @@ import { usePrefetch } from "@/hooks/usePrefetch";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
+import { initializeSecurity } from "@/lib/securityConfig";
+import { initializeNotificationSystem } from "@/lib/notificationManager";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
 const Qibla = lazy(() => import("./pages/Qibla"));
@@ -52,6 +54,12 @@ const App = () => {
   const [splashDone, setSplashDone] = useState(() => {
     return sessionStorage.getItem('splash_shown') === '1';
   });
+
+  // Initialize security and notifications on app load
+  useEffect(() => {
+    initializeSecurity();
+    initializeNotificationSystem();
+  }, []);
 
   const handleSplashComplete = useCallback(() => {
     sessionStorage.setItem('splash_shown', '1');

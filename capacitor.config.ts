@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.taakadapp.app',
-  appName: 'تأكد',
+  appId: 'com.almuezzin.app',
+  appName: 'المؤذن العالمي',
   webDir: 'dist',
   server: {
-    url: 'https://www-taakadapp-com.lovable.app',
+    url: 'https://www.almuezzin.com',
     cleartext: false,
   },
   android: {
