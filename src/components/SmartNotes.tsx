@@ -25,7 +25,7 @@ export default function SmartNotes() {
     description: '',
     time: '',
     date: new Date().toISOString().split('T')[0],
-    priority: 'medium' as const,
+    priority: 'medium' as 'low' | 'medium' | 'high',
   });
 
   // Load notes from localStorage
