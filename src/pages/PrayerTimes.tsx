@@ -1,7 +1,8 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
-import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin, Building2 } from 'lucide-react';
+import { useSavedMosqueTimes } from '@/hooks/useSavedMosqueTimes';
+import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin, Building2, Unlink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -22,12 +23,16 @@ export default function PrayerTimes() {
   const { t } = useLocale();
   const navigate = useNavigate();
   const location = useGeoLocation();
-  const { prayers, hijriDate, loading } = usePrayerTimes(
+  const { prayers: apiPrayers, hijriDate, loading } = usePrayerTimes(
     location.latitude,
     location.longitude,
     location.calculationMethod,
     location.school
   );
+  const { mosqueName, prayers: mosquePrayers, loading: mosqueLoading, unlinkMosque, source: mosqueSource } = useSavedMosqueTimes();
+
+  const prayers = mosquePrayers || apiPrayers;
+  const usingMosque = !!mosquePrayers;
   const { prayer: nextPrayer } = getNextPrayer(prayers);
 
   const today = new Date();
@@ -38,7 +43,8 @@ export default function PrayerTimes() {
     const prayerText = prayers
       .map(p => `${t(p.key)}: ${p.time}`)
       .join('\n');
-    const shareText = `🕌 مواقيت الصلاة - ${location.city || ''}\n${dayName}، ${dateStr}\n${hijriDate}\n\n${prayerText}`;
+    const sourceLabel = usingMosque ? `🕌 ${mosqueName}` : `📍 ${location.city || ''}`;
+    const shareText = `🕌 مواقيت الصلاة - ${sourceLabel}\n${dayName}، ${dateStr}\n${hijriDate}\n\n${prayerText}`;
 
     if (navigator.share) {
       try {
@@ -65,16 +71,44 @@ export default function PrayerTimes() {
         }
       />
 
-      {/* Location card */}
+      {/* Location/Mosque card */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
-        <div className="rounded-3xl bg-card border border-border/50 p-4 shadow-elevated flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <MapPin className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">{location.city || '...'}</p>
-            <p className="text-xs text-muted-foreground truncate">{location.country || ''} • {hijriDate}</p>
-          </div>
+        <div className="rounded-3xl bg-card border border-border/50 p-4 shadow-elevated">
+          {usingMosque && mosqueName ? (
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-foreground truncate">{mosqueName}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {mosqueSource === 'mawaqit' && (
+                    <span className="bg-primary/15 text-primary text-[9px] px-1.5 py-0.5 rounded-full font-bold me-1">{t('liveLabel')}</span>
+                  )}
+                  {hijriDate}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  unlinkMosque();
+                  toast.success(t('mosqueUnlinked'));
+                }}
+                className="flex items-center gap-1 text-[10px] text-destructive shrink-0 p-2"
+              >
+                <Unlink className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-foreground truncate">{location.city || '...'}</p>
+                <p className="text-xs text-muted-foreground truncate">{location.country || ''} • {hijriDate}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -82,7 +116,7 @@ export default function PrayerTimes() {
       <div className="px-5 mb-5">
         <SectionHeader icon={Clock} title="أوقات الصلاة اليوم" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
-          {loading ? (
+          {(loading && !usingMosque) || mosqueLoading ? (
             <div className="flex items-center justify-center py-20">
               <Clock className="h-6 w-6 animate-spin text-primary" />
             </div>
@@ -148,8 +182,12 @@ export default function PrayerTimes() {
             <Building2 className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 text-start">
-            <p className="text-sm font-bold text-foreground">أوقات المساجد القريبة</p>
-            <p className="text-xs text-muted-foreground">اختر مسجدك وأدخل أوقات الصلاة يدوياً</p>
+            <p className="text-sm font-bold text-foreground">
+              {usingMosque ? 'تغيير المسجد' : 'أوقات المساجد القريبة'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {usingMosque ? 'اختر مسجداً آخر أو أدخل أوقات الصلاة يدوياً' : 'اختر مسجدك وأدخل أوقات الصلاة يدوياً'}
+            </p>
           </div>
         </button>
       </div>
