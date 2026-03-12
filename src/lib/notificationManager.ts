@@ -265,7 +265,7 @@ export async function sendPrayerNotification(
   };
 
   const payload: NotificationPayload = {
-    title: `المؤذن العالمي - ${prayerName}`,
+    title: `🕌 المؤذن العالمي - ${prayerName}`,
     body: prayerMessages[prayerName] || `حان وقت ${prayerName} الساعة ${prayerTime}`,
     icon: (prayerKey && PRAYER_ICONS[prayerKey]) || '/icon-192x192.png',
     badge: '/badge-72x72.png',
