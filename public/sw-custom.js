@@ -3,7 +3,7 @@
 // Handle push notifications from the server
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'حان وقت الصلاة 🕌';
+  const title = data.title || '🕌 المؤذن العالمي';
   const options = {
     body: data.body || '',
     icon: '/pwa-icon-192.png',
