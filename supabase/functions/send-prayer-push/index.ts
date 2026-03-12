@@ -92,8 +92,8 @@ Deno.serve(async (req) => {
           if (!prayerTime || prayerTime !== currentHHMM) continue;
 
           const payload = JSON.stringify({
-            title: `الأذان ${prayerTime}`,
-            body: `${PRAYER_NAMES[key]} - ${prayerTime}\nصل الآن. فتأخير الصلاة يجعلها أصعب.`,
+            title: `🕌 المؤذن العالمي`,
+            body: `${PRAYER_NAMES[key]} - ${prayerTime}\nحان وقت الصلاة، بادر إليها`,
             prayer: key,
             time: prayerTime,
             url: '/',
