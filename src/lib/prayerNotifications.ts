@@ -99,8 +99,8 @@ export function sendTestNotification(): boolean {
   if (Notification.permission !== 'granted') return false;
 
   sendNotification(
-    'إشعار تجريبي ✅',
-    'الإشعارات تعمل بنجاح! سيتم إعلامك عند وقت كل صلاة.',
+    '🕌 اختبار - المؤذن العالمي',
+    'الإشعارات تعمل بنجاح! حيّ على الصلاة',
     'test-notification',
     false
   );
