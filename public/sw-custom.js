@@ -3,7 +3,7 @@
 // Handle push notifications from the server
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'حان وقت الصلاة 🕌';
+  const title = data.title || '🕌 المؤذن العالمي';
   const options = {
     body: data.body || '',
     icon: '/pwa-icon-192.png',
@@ -106,8 +106,8 @@ async function checkPrayerTimesInBackground() {
         didFire = true;
 
         const name = PRAYER_NAMES[prayer.key] || prayer.key;
-        await self.registration.showNotification(`الأذان ${prayer.time24}`, {
-          body: `${name} - ${prayer.time24}\nصل الآن. فتأخير الصلاة يجعلها أصعب.`,
+        await self.registration.showNotification('🕌 المؤذن العالمي', {
+          body: `${name} - ${prayer.time24}\nحان وقت الصلاة، بادر إليها`,
           icon: '/pwa-icon-192.png',
           badge: '/pwa-icon-192.png',
           tag: `prayer-${prayer.key}`,

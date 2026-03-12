@@ -21,8 +21,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png"],
       manifest: {
-        name: "تأكد - تطبيقك الإسلامي",
-        short_name: "تأكد",
+        name: "المؤذن العالمي - Al Muezzin",
+        short_name: "المؤذن العالمي",
         description: "مواقيت الصلاة، القرآن، الأذكار، اتجاه القبلة والمزيد",
         theme_color: "#257a4d",
         background_color: "#f2ede6",
