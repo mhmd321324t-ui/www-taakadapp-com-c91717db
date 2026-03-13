@@ -48,7 +48,7 @@ export default function Auth() {
         toast.success(t('loginSuccess'));
         navigate('/');
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -57,10 +57,25 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success(t('signupSuccess'));
+        // Auto-confirmed: redirect immediately
+        if (data.session) {
+          toast.success('تم إنشاء الحساب بنجاح! 🎉');
+          navigate('/');
+        } else {
+          toast.success('تم إنشاء الحساب! تحقق من بريدك الإلكتروني');
+        }
       }
     } catch (err: any) {
-      toast.error(isLogin ? 'بريد إلكتروني أو كلمة مرور غير صحيحة' : 'حدث خطأ، يرجى المحاولة مرة أخرى');
+      const msg = err?.message?.toLowerCase() || '';
+      if (msg.includes('invalid login') || msg.includes('invalid email or password')) {
+        toast.error('بريد إلكتروني أو كلمة مرور غير صحيحة');
+      } else if (msg.includes('user already registered')) {
+        toast.error('هذا البريد مسجل بالفعل، جرب تسجيل الدخول');
+      } else if (msg.includes('password')) {
+        toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      } else {
+        toast.error(isLogin ? 'فشل تسجيل الدخول' : 'حدث خطأ، يرجى المحاولة مرة أخرى');
+      }
     } finally {
       setLoading(false);
     }
