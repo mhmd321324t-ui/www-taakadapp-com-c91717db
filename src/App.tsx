@@ -52,6 +52,9 @@ function SEOWrapper({ children }: { children: React.ReactNode }) {
 
 const App = () => {
   const [splashDone, setSplashDone] = useState(() => {
+    // Skip splash for search engine crawlers so they can index content
+    const isBot = /bot|crawl|spider|slurp|googlebot|bingbot|yandex|baidu|duckduck/i.test(navigator.userAgent);
+    if (isBot) return true;
     return sessionStorage.getItem('splash_shown') === '1';
   });
 
