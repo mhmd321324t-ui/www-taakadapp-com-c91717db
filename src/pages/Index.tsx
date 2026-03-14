@@ -18,6 +18,7 @@ import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft,
 import { AdBanner } from '@/components/AdBanner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { safeLocalGet, safeLocalSet } from '@/lib/safeStorage';
 const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
