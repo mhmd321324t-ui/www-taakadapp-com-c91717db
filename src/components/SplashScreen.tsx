@@ -42,7 +42,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             </svg>
           </div>
 
-          <h1 className="relative z-10 text-3xl font-bold text-foreground mb-2">صلاتي</h1>
+          <h1 className="relative z-10 text-3xl font-bold text-foreground mb-2">أذاني</h1>
           <p className="relative z-10 text-sm text-muted-foreground">رفيقك الإسلامي اليومي</p>
         </motion.div>
       )}
