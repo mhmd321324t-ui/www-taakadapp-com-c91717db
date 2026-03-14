@@ -119,7 +119,7 @@ export const secureStorage = {
 
 // HTTPS enforcement
 export function enforceHTTPS(): void {
-  if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+  if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && import.meta.env.PROD) {
     window.location.protocol = 'https:';
   }
 }
@@ -165,22 +165,11 @@ export function initializeSecurity(): void {
   // Enforce HTTPS
   enforceHTTPS();
 
-  // Disable right-click context menu in production
-  if (process.env.NODE_ENV === 'production') {
-    document.addEventListener('contextmenu', (e) => {
-      // Allow in development, disable in production for sensitive pages
-      // e.preventDefault();
+  // Disable right-click context menu in production (currently no-op by design)
+  if (import.meta.env.PROD) {
+    document.addEventListener('contextmenu', () => {
+      // Intentionally left blank.
     });
-  }
-
-  // Prevent console access in production
-  if (process.env.NODE_ENV === 'production') {
-    (window as any).console = {
-      log: () => {},
-      warn: () => {},
-      error: () => {},
-      info: () => {},
-    };
   }
 
   // Set security headers via meta tags

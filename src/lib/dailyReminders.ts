@@ -8,6 +8,8 @@
  * 22:00 — Bedtime azkar reminder
  */
 
+import { safeLocalGet, safeLocalSet } from '@/lib/safeStorage';
+
 const STORAGE_KEY = 'daily-reminders-enabled';
 
 export interface DailyReminder {
@@ -56,11 +58,11 @@ export const DAILY_REMINDERS: DailyReminder[] = [
 ];
 
 export function isDailyRemindersEnabled(): boolean {
-  return localStorage.getItem(STORAGE_KEY) === 'true';
+  return safeLocalGet(STORAGE_KEY) === 'true';
 }
 
 export function setDailyRemindersEnabled(enabled: boolean) {
-  localStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false');
+  safeLocalSet(STORAGE_KEY, enabled ? 'true' : 'false');
 }
 
 /**

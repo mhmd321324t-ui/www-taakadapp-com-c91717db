@@ -18,6 +18,7 @@ import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft,
 import { AdBanner } from '@/components/AdBanner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { safeLocalGet, safeLocalSet } from '@/lib/safeStorage';
 const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
@@ -55,7 +56,7 @@ export default function Index() {
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    return localStorage.getItem('athan-notifications') === 'true';
+    return safeLocalGet('athan-notifications') === 'true';
   });
 
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
@@ -96,12 +97,19 @@ export default function Index() {
 
   useEffect(() => {
     const todayKey = new Date().toISOString().split('T')[0];
-    const prayerData = localStorage.getItem('prayer-tracker');
-    if (prayerData) {
-      const parsed = JSON.parse(prayerData);
-      setPrayersDone(parsed[todayKey]?.length || 0);
+
+    try {
+      const prayerData = safeLocalGet('prayer-tracker');
+      if (prayerData) {
+        const parsed = JSON.parse(prayerData);
+        setPrayersDone(parsed[todayKey]?.length || 0);
+      }
+    } catch {
+      setPrayersDone(0);
     }
-    const tasbeehTotal = parseInt(localStorage.getItem('tasbeeh-total') || '0');
+
+    const tasbeehRaw = safeLocalGet('tasbeeh-total') || '0';
+    const tasbeehTotal = parseInt(tasbeehRaw, 10);
     setTasbeehDone(Math.min(tasbeehTotal > 0 ? 1 : 0, 4));
   }, []);
 
@@ -142,14 +150,14 @@ export default function Index() {
       const granted = await requestNotificationPermission();
       if (granted) {
         setNotificationsEnabled(true);
-        localStorage.setItem('athan-notifications', 'true');
+        safeLocalSet('athan-notifications', 'true');
         toast.success(t('notificationsEnabled'));
       } else {
         toast.error(t('notificationsDenied'));
       }
     } else {
       setNotificationsEnabled(false);
-      localStorage.setItem('athan-notifications', 'false');
+      safeLocalSet('athan-notifications', 'false');
       unsubscribeFromPush().catch(console.error);
       toast.success(t('notificationsDisabled'));
     }
