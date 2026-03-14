@@ -13,7 +13,7 @@ export interface PageHeaderProps {
 }
 
 export default function PageHeader({ title, subtitle, actions, actionsLeft, compact, image, backTo }: PageHeaderProps) {
-  const navigate = backTo ? useNavigate() : null;
+  const navigate = useNavigate();
   return (
     <div className={`relative overflow-hidden ${image ? 'pb-20 pt-safe-header' : compact ? 'pb-14 pt-safe-header-compact' : 'pb-16 pt-safe-header'}`}>
       {image ? (
