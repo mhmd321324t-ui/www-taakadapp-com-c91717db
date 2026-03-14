@@ -119,7 +119,7 @@ export const secureStorage = {
 
 // HTTPS enforcement
 export function enforceHTTPS(): void {
-  if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+  if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && import.meta.env.PROD) {
     window.location.protocol = 'https:';
   }
 }
