@@ -11,9 +11,11 @@ import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import { initializeSecurity } from "@/lib/securityConfig";
 import { initializeNotificationSystem } from "@/lib/notificationManager";
+import { safeSessionGet, safeSessionRemove, safeSessionSet } from "@/lib/safeStorage";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
 const Qibla = lazy(() => import("./pages/Qibla"));
@@ -43,6 +45,9 @@ const PeriodTracker = lazy(() => import("./pages/PeriodTracker"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
+const SPLASH_KEY = "splash_shown";
+const CHUNK_RELOAD_GUARD_KEY = "chunk_reload_guard";
+const BOT_UA_REGEX = /bot|crawl|spider|slurp|googlebot|bingbot|yandex|baidu|duckduck/i;
 
 function SEOWrapper({ children }: { children: React.ReactNode }) {
   useSEO();
@@ -50,13 +55,14 @@ function SEOWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function getInitialSplashDone() {
+  const isBot = typeof navigator !== "undefined" && BOT_UA_REGEX.test(navigator.userAgent);
+  if (isBot) return true;
+  return safeSessionGet(SPLASH_KEY) === "1";
+}
+
 const App = () => {
-  const [splashDone, setSplashDone] = useState(() => {
-    // Skip splash for search engine crawlers so they can index content
-    const isBot = /bot|crawl|spider|slurp|googlebot|bingbot|yandex|baidu|duckduck/i.test(navigator.userAgent);
-    if (isBot) return true;
-    return sessionStorage.getItem('splash_shown') === '1';
-  });
+  const [splashDone, setSplashDone] = useState(getInitialSplashDone);
 
   // Initialize security and notifications on app load
   useEffect(() => {
@@ -64,64 +70,106 @@ const App = () => {
     initializeNotificationSystem();
   }, []);
 
+  // Recover once from stale chunk/service-worker publish mismatches
+  useEffect(() => {
+    const isChunkError = (message: string) =>
+      /Failed to fetch dynamically imported module|Loading chunk [\d]+ failed|ChunkLoadError/i.test(message);
+
+    const reloadOnce = () => {
+      if (safeSessionGet(CHUNK_RELOAD_GUARD_KEY) === "1") return;
+      safeSessionSet(CHUNK_RELOAD_GUARD_KEY, "1");
+      window.location.reload();
+    };
+
+    const onWindowError = (event: ErrorEvent) => {
+      if (isChunkError(event.message || "")) {
+        reloadOnce();
+      }
+    };
+
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason as { message?: string } | string | null;
+      const message = typeof reason === "string" ? reason : reason?.message ?? "";
+      if (isChunkError(message)) {
+        reloadOnce();
+      }
+    };
+
+    window.addEventListener("error", onWindowError);
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+
+    // Clear guard after successful runtime stability window
+    const clearGuardTimer = window.setTimeout(() => {
+      safeSessionRemove(CHUNK_RELOAD_GUARD_KEY);
+    }, 15000);
+
+    return () => {
+      window.removeEventListener("error", onWindowError);
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
+      window.clearTimeout(clearGuardTimer);
+    };
+  }, []);
+
   const handleSplashComplete = useCallback(() => {
-    sessionStorage.setItem('splash_shown', '1');
+    safeSessionSet(SPLASH_KEY, "1");
     setSplashDone(true);
   }, []);
 
-  if (!splashDone) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <LocaleProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <SEOWrapper>
-                <AppLayout>
-                  <Suspense fallback={<div className="min-h-screen" />}>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/prayer-times" element={<PrayerTimes />} />
-                      <Route path="/qibla" element={<Qibla />} />
-                      <Route path="/quran" element={<Quran />} />
-                      <Route path="/quran/:id" element={<SurahView />} />
-                      <Route path="/tasbeeh" element={<Tasbeeh />} />
-                      <Route path="/duas" element={<Duas />} />
-                      <Route path="/more" element={<More />} />
-                      <Route path="/tracker" element={<PrayerTracker />} />
-                      <Route path="/zakat" element={<ZakatCalculator />} />
-                      <Route path="/stories" element={<Stories />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/account" element={<Account />} />
-                      <Route path="/admin" element={<AdminDashboard />} />
-                      <Route path="/install" element={<Install />} />
-                      <Route path="/daily-duas" element={<DailyDuas />} />
-                      <Route path="/mosque-times" element={<MosquePrayerTimes />} />
-                      <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
-                      <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
-                      <Route path="/quran-goal" element={<QuranGoal />} />
-                      <Route path="/dhikr-settings" element={<DhikrSettings />} />
-                      <Route path="/notifications" element={<NotificationSettings />} />
-                      <Route path="/ruqyah" element={<Ruqyah />} />
-                      <Route path="/ramadan-cards" element={<RamadanCards />} />
-                      <Route path="/ramadan-book" element={<RamadanBook />} />
-                      <Route path="/period-tracker" element={<PeriodTracker />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                </AppLayout>
-              </SEOWrapper>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </LocaleProvider>
-    </QueryClientProvider>
+    <AppErrorBoundary>
+      {!splashDone ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : (
+        <QueryClientProvider client={queryClient}>
+          <LocaleProvider>
+            <AuthProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <SEOWrapper>
+                    <AppLayout>
+                      <Suspense fallback={<div className="min-h-screen" />}>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/prayer-times" element={<PrayerTimes />} />
+                          <Route path="/qibla" element={<Qibla />} />
+                          <Route path="/quran" element={<Quran />} />
+                          <Route path="/quran/:id" element={<SurahView />} />
+                          <Route path="/tasbeeh" element={<Tasbeeh />} />
+                          <Route path="/duas" element={<Duas />} />
+                          <Route path="/more" element={<More />} />
+                          <Route path="/tracker" element={<PrayerTracker />} />
+                          <Route path="/zakat" element={<ZakatCalculator />} />
+                          <Route path="/stories" element={<Stories />} />
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/account" element={<Account />} />
+                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="/install" element={<Install />} />
+                          <Route path="/daily-duas" element={<DailyDuas />} />
+                          <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                          <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                          <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
+                          <Route path="/quran-goal" element={<QuranGoal />} />
+                          <Route path="/dhikr-settings" element={<DhikrSettings />} />
+                          <Route path="/notifications" element={<NotificationSettings />} />
+                          <Route path="/ruqyah" element={<Ruqyah />} />
+                          <Route path="/ramadan-cards" element={<RamadanCards />} />
+                          <Route path="/ramadan-book" element={<RamadanBook />} />
+                          <Route path="/period-tracker" element={<PeriodTracker />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </AppLayout>
+                  </SEOWrapper>
+                </BrowserRouter>
+              </TooltipProvider>
+            </AuthProvider>
+          </LocaleProvider>
+        </QueryClientProvider>
+      )}
+    </AppErrorBoundary>
   );
 };
 

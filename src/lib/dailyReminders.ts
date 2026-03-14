@@ -8,6 +8,8 @@
  * 22:00 — Bedtime azkar reminder
  */
 
+import { safeLocalGet, safeLocalSet } from '@/lib/safeStorage';
+
 const STORAGE_KEY = 'daily-reminders-enabled';
 
 export interface DailyReminder {
@@ -21,46 +23,15 @@ export interface DailyReminder {
 }
 
 export const DAILY_REMINDERS: DailyReminder[] = [
-  {
-    id: 'morning-azkar',
-    hour: 7,
-    minute: 30,
-    title: '☀️ صباح الخير — لا تنسَ أذكارك',
-    body: 'هل قرأت أذكار الصباح والخروج من المنزل؟ ابدأ يومك بذكر الله 🤲',
-    url: '/daily-duas?context=morning',
-  },
-  {
-    id: 'midday-dua',
-    hour: 13,
-    minute: 0,
-    title: '🤲 وقفة مع الله',
-    body: 'هل دعوت لوالديك اليوم؟ هل سبّحت وصلّيت على النبي ﷺ واستغفرت؟ لا تُفوّت أجر الدعاء',
-    url: '/daily-duas?context=midday',
-  },
-  {
-    id: 'evening-quran',
-    hour: 20,
-    minute: 0,
-    title: '📖 هل عندك وقت فراغ؟',
-    body: 'تعال نقرأ القرآن معاً.. ولو آيات قليلة تُنير قلبك ✨',
-    url: '/daily-duas?context=evening',
-  },
-  {
-    id: 'bedtime-azkar',
-    hour: 22,
-    minute: 0,
-    title: '🌙 قبل ما تنام',
-    body: 'لا تنسَ أذكار النوم — حصّن نفسك وأهلك بذكر الله قبل النوم 🛡️',
-    url: '/daily-duas?context=bedtime',
-  },
+...
 ];
 
 export function isDailyRemindersEnabled(): boolean {
-  return localStorage.getItem(STORAGE_KEY) === 'true';
+  return safeLocalGet(STORAGE_KEY) === 'true';
 }
 
 export function setDailyRemindersEnabled(enabled: boolean) {
-  localStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false');
+  safeLocalSet(STORAGE_KEY, enabled ? 'true' : 'false');
 }
 
 /**
