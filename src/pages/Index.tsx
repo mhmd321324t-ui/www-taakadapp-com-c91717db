@@ -97,12 +97,19 @@ export default function Index() {
 
   useEffect(() => {
     const todayKey = new Date().toISOString().split('T')[0];
-    const prayerData = localStorage.getItem('prayer-tracker');
-    if (prayerData) {
-      const parsed = JSON.parse(prayerData);
-      setPrayersDone(parsed[todayKey]?.length || 0);
+
+    try {
+      const prayerData = safeLocalGet('prayer-tracker');
+      if (prayerData) {
+        const parsed = JSON.parse(prayerData);
+        setPrayersDone(parsed[todayKey]?.length || 0);
+      }
+    } catch {
+      setPrayersDone(0);
     }
-    const tasbeehTotal = parseInt(localStorage.getItem('tasbeeh-total') || '0');
+
+    const tasbeehRaw = safeLocalGet('tasbeeh-total') || '0';
+    const tasbeehTotal = parseInt(tasbeehRaw, 10);
     setTasbeehDone(Math.min(tasbeehTotal > 0 ? 1 : 0, 4));
   }, []);
 
