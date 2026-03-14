@@ -254,53 +254,15 @@ function AIAssistant() {
     setLoading(true);
 
     try {
-      const geminiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
-      if (!geminiKey) {
-        setMessages(prev => [...prev, { role: 'assistant', content: 'مفتاح API الخاص بـ Gemini غير مُعرّف. يرجى إضافته في ملف .env' }]);
-        setLoading(false);
-        return;
-      }
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: {
+          messages: [...messages, { role: 'user', content: userMsg }],
+          model: aiModel === 'gemini-2.0-flash' ? 'gemini-2.0-flash' : 'gemini-2.5-flash',
+        },
+      });
 
-      const systemPrompt = `أنت مساعد ذكي لإدارة تطبيق "المؤذن العالمي" - تطبيق إسلامي شامل.
-مهامك:
-- مساعدة المدير في إدارة التطبيق والموقع
-- تقديم اقتراحات لتحسين المحتوى والأداء
-- المساعدة في كتابة المحتوى الإسلامي (أدعية، قصص، نصائح)
-- تحليل البيانات وتقديم تقارير
-- المساعدة في حل المشاكل التقنية
-- تقديم أفكار لميزات جديدة
-- المساعدة في إدارة الإشعارات والحملات
-أجب دائماً بالعربية وبأسلوب احترافي ومفيد.`;
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${aiModel}:generateContent?key=${geminiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              { role: 'user', parts: [{ text: systemPrompt }] },
-              { role: 'model', parts: [{ text: 'مرحباً! أنا مساعدك الذكي لإدارة تطبيق المؤذن العالمي. كيف يمكنني مساعدتك؟' }] },
-              ...messages.map(m => ({
-                role: m.role === 'user' ? 'user' : 'model',
-                parts: [{ text: m.content }],
-              })),
-              { role: 'user', parts: [{ text: userMsg }] },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2048,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أتمكن من الرد.';
+      if (error) throw error;
+      const aiResponse = data?.response || 'عذراً، لم أتمكن من الرد.';
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
     } catch (err: any) {
       setMessages(prev => [...prev, { role: 'assistant', content: `خطأ: ${err.message || 'فشل الاتصال بالذكاء الاصطناعي'}` }]);
