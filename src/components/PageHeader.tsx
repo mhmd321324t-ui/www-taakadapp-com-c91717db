@@ -29,7 +29,7 @@ export default function PageHeader({ title, subtitle, actions, actionsLeft, comp
       )}
       <div className="flex items-center justify-between relative z-10 px-5 gap-3">
         {actionsLeft || (backTo ? (
-          <button onClick={() => navigate!(backTo)} className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+          <button onClick={() => navigate(backTo)} className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center shrink-0">
             <ArrowRight className="h-5 w-5 text-white" />
           </button>
         ) : <div className="w-10 shrink-0" />)}
