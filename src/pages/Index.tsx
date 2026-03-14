@@ -56,7 +56,7 @@ export default function Index() {
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    return localStorage.getItem('athan-notifications') === 'true';
+    return safeLocalGet('athan-notifications') === 'true';
   });
 
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
