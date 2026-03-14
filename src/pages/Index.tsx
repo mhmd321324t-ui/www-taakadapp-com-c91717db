@@ -150,14 +150,14 @@ export default function Index() {
       const granted = await requestNotificationPermission();
       if (granted) {
         setNotificationsEnabled(true);
-        localStorage.setItem('athan-notifications', 'true');
+        safeLocalSet('athan-notifications', 'true');
         toast.success(t('notificationsEnabled'));
       } else {
         toast.error(t('notificationsDenied'));
       }
     } else {
       setNotificationsEnabled(false);
-      localStorage.setItem('athan-notifications', 'false');
+      safeLocalSet('athan-notifications', 'false');
       unsubscribeFromPush().catch(console.error);
       toast.success(t('notificationsDisabled'));
     }
